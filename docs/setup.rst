@@ -112,6 +112,24 @@ Vagrant Method
 .. _Vagrant: https://vagrantup.com/
 .. _Paperless server: http://172.28.128.4:8000
 
+.. _setup-installation-docker:
+
+Docker Method
+.............
+
+1. Install `Docker`_.
+2. Run ``docker build -t paperless .``. Get a cup of coffee as the image builds for the first time.
+3. Run ``docker run -d -p 8000:8000 paperless`` then navigate to https://localhost:8000
+
+The Docker image supports the following environment variables. These variables can be passed into the ``docker run`` command above with the ``-e MY_VAR my_value`` flag.
+
+- PAPERLESS_PASSPHRASE (default: some-secret-string)
+- CONSUMPTION_DIR (default: /opt/consumption)
+- USERNAME (default: admin)
+- EMAIL (default: admin@example.com)
+- PASSWORD (default: paperless)
+
+.. _Docker: https://www.docker.com/
 
 .. _making-things-a-little-more-permanent:
 
