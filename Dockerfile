@@ -3,9 +3,12 @@ FROM ubuntu:14.04
 RUN mkdir -p /opt/paperless/scripts
 WORKDIR /opt/paperless
 
+RUN apt-get install -y tofrodos
+
 COPY scripts/vagrant-provision /opt/paperless/scripts/
 COPY requirements.txt /opt/paperless/
 
+RUN fromdos /opt/paperless/scripts/vagrant-provision
 RUN bash /opt/paperless/scripts/vagrant-provision
 
 ADD . /opt/paperless/
