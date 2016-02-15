@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "paperless.settings")
