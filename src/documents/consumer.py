@@ -17,8 +17,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.template.defaultfilters import slugify
 
-from logger.models import Log
-from paperless.db import GnuPG
+from ..logger.models import Log
+from ..paperless.db import GnuPG
 
 from .models import Sender, Tag, Document
 from .languages import ISO639
