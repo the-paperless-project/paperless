@@ -11,8 +11,6 @@ services:
             - data:/usr/src/paperless/data
             - media:/usr/src/paperless/media
         env_file: docker-compose.env
-        environment:
-            - PAPERLESS_OCR_LANGUAGES=
         command: ["runserver", "0.0.0.0:8000"]
 
     consumer:
