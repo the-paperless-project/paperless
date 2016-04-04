@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, static, include
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 
 from rest_framework.routers import DefaultRouter
 
@@ -24,6 +25,7 @@ from documents.views import (
     IndexView, FetchView, PushView,
     CorrespondentViewSet, TagViewSet, DocumentViewSet, LogViewSet
 )
+from .forms import BootstrappedAuthenticationForm
 
 router = DefaultRouter()
 router.register(r'correspondents', CorrespondentViewSet)
@@ -41,7 +43,7 @@ urlpatterns = [
     url(r"^api/", include(router.urls, namespace="drf")),
 
     # Normal pages (coming soon)
-    # url(r"^$", IndexView.as_view(), name="index"),
+    url(r"^$", IndexView.as_view(), name="index"),
 
     # File downloads
     url(
@@ -52,7 +54,14 @@ urlpatterns = [
 
     # The Django admin
     url(r"admin/", admin.site.urls),
-    url(r"", admin.site.urls),  # This is going away
+
+    # Django auth views
+    url(
+        '^login/',
+        auth_views.login,
+        {"authentication_form": BootstrappedAuthenticationForm}
+    ),
+    url('^', include('django.contrib.auth.urls'))
 
 ] + static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

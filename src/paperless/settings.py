@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django_extensions",
 
     "documents.apps.DocumentsConfig",
+    "paperless",
 
     "rest_framework",
     "crispy_forms",
@@ -141,6 +142,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "..", "media")
 
 STATIC_URL = '/static/'
 MEDIA_URL = "/media/"
+LOGIN_URL = "/login/"
 
 
 # Paperless-specific stuff

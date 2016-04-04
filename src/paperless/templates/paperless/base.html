@@ -1,0 +1,24 @@
+{% load staticfiles %}<!DOCTYPE html>
+<html lang="en-gb">
+  <head>
+    <title>Paperless</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'contrib/css/bootstrap-min.css' %}">
+  </head>
+  <body>
+
+    <div class="container-fluid">
+      {% block container %}{% endblock %}
+    </div>
+
+    {% block js %}
+      <script src="{% static 'contrib/js/jquery-min.js' %}"></script>
+      <script src="{% static 'contrib/js/underscore-min.js' %}"></script>
+      <script src="{% static 'contrib/js/backbone-min.js' %}"></script>
+      <script src="{% static 'contrib/js/bootstrap-min.js' %}"></script>
+    {% endblock js %}
+
+  </body>
+</html>

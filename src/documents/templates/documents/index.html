@@ -1,10 +1,37 @@
-<!DOCTYPE html>
+{% extends 'paperless/base.html' %}
 
-<html lang="en-gb">
-  <head>
-    <title>Paperless</title>
-    <meta charset="utf-8">
-  </head>
-  <body>
-  </body>
-</html>
+
+{% load staticfiles %}
+
+
+{% block container %}
+  <div id="application">
+    <div class="col-md-6" id="listing">
+      <div class="search">
+        Search
+      </div>
+      Documents
+      <div id="documents"></div>
+    </div>
+    <div class="col-md-6 hidden-sm-down" id="reader">
+      Reader
+    </div>
+  </div>
+{% endblock container %}
+
+
+{% block js %}
+
+  {{ block.super }}
+
+  <script src="{% static 'documents/js/application.js' %}"></script>
+
+  <!-- Templates -->
+  <script type="text/template" id="document-template">
+    <div style="border: 1px solid #000000;">
+      <%- title %><br />
+      <%- correspondent %><br />
+    </div>
+  </script>
+
+{% endblock js %}
