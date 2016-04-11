@@ -292,16 +292,18 @@ class Consumer(object):
 
         self.log("debug", "Saving record to database")
 
-        document = Document.objects.create(
-            correspondent=file_info.correspondent,
-            title=file_info.title,
-            content=text,
-            file_type=file_info.extension,
-            created=timezone.make_aware(
-                datetime.datetime.fromtimestamp(stats.st_mtime)),
-            modified=timezone.make_aware(
-                datetime.datetime.fromtimestamp(stats.st_mtime))
-        )
+        with open(doc, "rb") as f:
+            document = Document.objects.create(
+                correspondent=file_info.correspondent,
+                title=file_info.title,
+                content=text,
+                file_type=file_info.extension,
+                checksum=hashlib.md5(f.read()).hexdigest(),
+                created=timezone.make_aware(
+                    datetime.datetime.fromtimestamp(stats.st_mtime)),
+                modified=timezone.make_aware(
+                    datetime.datetime.fromtimestamp(stats.st_mtime))
+            )
 
         relevant_tags = set(list(Tag.match_all(text)) + list(file_info.tags))
         if relevant_tags:
@@ -377,7 +379,7 @@ def run_unpaper(args):
 
 def run_convert(*args):
 
-    environment = {}
+    environment = os.environ.copy()
     if settings.CONVERT_MEMORY_LIMIT:
         environment["MAGICK_MEMORY_LIMIT"] = settings.CONVERT_MEMORY_LIMIT
     if settings.CONVERT_TMPDIR:
