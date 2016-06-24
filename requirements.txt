@@ -2,7 +2,7 @@ Django==1.9.4
 Pillow==3.1.1
 django-crispy-forms==1.6.0
 django-extensions==1.6.1
-django-filter==0.12.0
+django-filter==0.13.0
 djangorestframework==3.3.2
 filemagic==1.6
 langdetect==1.0.5
