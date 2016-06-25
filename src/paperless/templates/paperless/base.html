@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <link rel="stylesheet" href="{% static 'contrib/css/bootstrap-min.css' %}">
+    <link rel="stylesheet" href="{% static 'contrib/bootstrap/bootstrap-min.css' %}">
+    <link rel="stylesheet" href="{% static 'contrib/font-awesome/css/font-awesome.min.css' %}">
   </head>
   <body>
 
@@ -14,10 +15,11 @@
     </div>
 
     {% block js %}
-      <script src="{% static 'contrib/js/jquery-min.js' %}"></script>
-      <script src="{% static 'contrib/js/underscore-min.js' %}"></script>
-      <script src="{% static 'contrib/js/backbone-min.js' %}"></script>
-      <script src="{% static 'contrib/js/bootstrap-min.js' %}"></script>
+      <script src="{% static 'contrib/jquery/jquery-min.js' %}"></script>
+      <script src="{% static 'contrib/backbone/underscore-min.js' %}"></script>
+      <script src="{% static 'contrib/backbone/backbone-min.js' %}"></script>
+      <script src="{% static 'contrib/tether/js/tether.min.js' %}"></script>
+      <script src="{% static 'contrib/bootstrap/bootstrap-min.js' %}"></script>
     {% endblock js %}
 
   </body>
