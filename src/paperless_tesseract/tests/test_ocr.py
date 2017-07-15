@@ -1,34 +1,11 @@
 import os
+import re
 from unittest import mock, skipIf
 
 import pyocr
 from django.test import TestCase
-from pyocr.libtesseract.tesseract_raw import \
-    TesseractError as OtherTesseractError
 
 from ..parsers import image_to_string, strip_excess_whitespace
-
-
-class FakeTesseract(object):
-
-    @staticmethod
-    def can_detect_orientation():
-        return True
-
-    @staticmethod
-    def detect_orientation(file_handle, lang):
-        raise OtherTesseractError("arbitrary status", "message")
-
-    @staticmethod
-    def image_to_string(file_handle, lang):
-        return "This is test text"
-
-
-class FakePyOcr(object):
-
-    @staticmethod
-    def get_available_tools():
-        return [FakeTesseract]
 
 
 class TestOCR(TestCase):
@@ -66,15 +43,12 @@ class TestOCR(TestCase):
         "paperless_tesseract.parsers.RasterisedDocumentParser.SCRATCH",
         SAMPLE_FILES
     )
-    @mock.patch("paperless_tesseract.parsers.pyocr", FakePyOcr)
-    def test_image_to_string_with_text_free_page(self):
-        """
-        This test is sort of silly, since it's really just reproducing an odd
-        exception thrown by pyocr when it encounters a page with no text.
-        Actually running this test against an installation of Tesseract results
-        in a segmentation fault rooted somewhere deep inside pyocr where I
-        don't care to dig.  Regardless, if you run the consumer normally,
-        text-free pages are now handled correctly so long as we work around
-        this weird exception.
-        """
-        image_to_string(["no-text.png", "en"])
+    def test_simple_image_with_text(self):
+        self.assertIn(
+            "It protects fools little children and ships named Enterprise",
+            re.sub(
+                "[^a-z A-Z]",
+                "",
+                image_to_string(("riker-ipsum.tif", "eng")).replace("\n", " ")
+            )
+        )
