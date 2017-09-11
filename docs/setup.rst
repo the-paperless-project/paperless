@@ -187,7 +187,7 @@ Docker Method
      document pages in parallel. If the variable is not set, Python determines
      the core-count of your CPU and uses that value.
 
-   ``PAPERLESS_OCR_LANGUAGES``
+   ``PAPERLESS_OCR_LANGUAGE``
      If you want the OCR to recognize other languages in addition to the
      default English, set this parameter to a space separated list of
      three-letter language-codes after `ISO 639-2/T`_. For a list of available
