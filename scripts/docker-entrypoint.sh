@@ -82,8 +82,8 @@ if [[ "$1" != "/"* ]]; then
     initialize
 
     # Install additional languages if specified
-    if [ ! -z "$PAPERLESS_OCR_LANGUAGES"  ]; then
-        install_languages "$PAPERLESS_OCR_LANGUAGES"
+    if [ ! -z "$PAPERLESS_OCR_LANGUAGE"  ]; then
+        install_languages "$PAPERLESS_OCR_LANGUAGE"
     fi
 
     exec sudo -HEu paperless "/usr/src/paperless/src/manage.py" "$@"

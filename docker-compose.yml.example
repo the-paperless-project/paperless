@@ -16,7 +16,7 @@ services:
         # languages the user might have set in the env-file by overwriting the
         # value with nothing.
         environment:
-            - PAPERLESS_OCR_LANGUAGES=
+            - PAPERLESS_OCR_LANGUAGE=
         command: ["runserver", "0.0.0.0:8000"]
 
     consumer:
