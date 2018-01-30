@@ -11,6 +11,7 @@ should work) that has the following software installed:
 * `Tesseract`_, plus its language files matching your document base.
 * `Imagemagick`_ version 6.7.5 or higher
 * `unpaper`_
+* `libpoppler-cpp-dev`_ PDF rendering library
 
 .. _Python3: https://python.org/
 .. _GNU Privacy Guard: https://gnupg.org

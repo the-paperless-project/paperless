@@ -4,6 +4,9 @@ LABEL maintainer="The Paperless Project https://github.com/danielquinn/paperless
       contributors="Guy Addadi <addadi@gmail.com>, Pit Kleyersburg <pitkley@googlemail.com>, \
         Sven Fischer <git-dev@linux4tw.de>"
 
+# Install dependencies
+RUN apt-get update && apt-get install -y libpoppler-cpp-dev
+
 # Copy application
 COPY requirements.txt /usr/src/paperless/
 COPY src/ /usr/src/paperless/src/

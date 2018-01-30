@@ -3,7 +3,13 @@ Changelog
 
 * 1.2.0
   * New Docker image, now based on Alpine, thanks to the efforts of `addadi`_
-  and `Pit`_.
+    and `Pit`_.
+  * Automatically skip OCR when PDF already contains text. Can be overriden
+    via ``PAPERLESS_OCR_ALWAYS=YES`` in the environment. Requires
+    ``libpoppler-cpp-dev`` to be installed. **You'll need to run ``pip install
+     -r requirements.txt`` after the usual ``git pull`` to properly update**.
+     Courtesy of `BastianPoe`_
+
 * 1.1.0
   * Fix for `#283`_, a redirect bug which broke interactions with
     paperless-desktop.  Thanks to `chris-aeviator`_ for reporting it.
