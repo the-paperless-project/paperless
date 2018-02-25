@@ -4,14 +4,15 @@ set -e
 # Source: https://github.com/sameersbn/docker-gitlab/
 map_uidgid() {
     USERMAP_ORIG_UID=$(id -u paperless)
-    USERMAP_ORIG_UID=$(id -g paperless)
-    USERMAP_GID=${USERMAP_GID:-${USERMAP_UID:-$USERMAP_ORIG_GID}}
+    USERMAP_ORIG_GID=$(id -g paperless)
     USERMAP_UID=${USERMAP_UID:-$USERMAP_ORIG_UID}
+    USERMAP_GID=${USERMAP_GID:-${USERMAP_UID:-$USERMAP_ORIG_GID}}
     if [[ ${USERMAP_UID} != "${USERMAP_ORIG_UID}" || ${USERMAP_GID} != "${USERMAP_ORIG_GID}" ]]; then
         echo "Mapping UID and GID for paperless:paperless to $USERMAP_UID:$USERMAP_GID"
-        addgroup -g "${USERMAP_GID}" paperless
-        sed -i -e "s|:${USERMAP_ORIG_UID}:${USERMAP_GID}:|:${USERMAP_UID}:${USERMAP_GID}:|" /etc/passwd
-    fi
+        deluser paperless
+        addgroup -g $USERMAP_GID paperless
+        adduser -u $USERMAP_UID -G paperless -D paperless
+     fi
 }
 
 set_permissions() {
@@ -79,7 +80,7 @@ install_languages() {
         if [ "$lang" ==  "eng" ]; then
             continue
         fi
-        
+
         if apk info -e "$pkg" > /dev/null 2>&1; then
             continue
         fi
