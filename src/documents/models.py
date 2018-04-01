@@ -483,3 +483,11 @@ class FileInfo:
                 cls._mangle_property(properties, "tags")
                 cls._mangle_property(properties, "extension")
                 return cls(**properties)
+
+
+class SharedDocument(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    document = models.ForeignKey('Document', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{} - {}".format(self.uuid, self.document.title)

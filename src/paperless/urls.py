@@ -7,6 +7,7 @@ from django.views.generic import RedirectView
 from rest_framework.routers import DefaultRouter
 
 from documents.views import (
+    AnonymousFetchView,
     CorrespondentViewSet,
     DocumentViewSet,
     FetchView,
@@ -37,6 +38,13 @@ urlpatterns = [
         r"^fetch/(?P<kind>doc|thumb)/(?P<pk>\d+)$",
         FetchView.as_view(),
         name="fetch"
+    ),
+
+    # Anonymous file download
+    url(
+        r"^fetch/(?P<uuid>.+)/$",
+        AnonymousFetchView.as_view(),
+        name="anonymous_fetch"
     ),
 
     # File uploads
