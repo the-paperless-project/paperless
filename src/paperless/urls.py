@@ -36,7 +36,7 @@ urlpatterns = [
 
     # File downloads
     url(
-        r"^fetch/(?P<kind>doc|thumb)/(?P<pk>\d+)$",
+        r"fetch/(?P<kind>doc|thumb)/(?P<pk>\d+)$",
         FetchView.as_view(),
         name="fetch"
     ),
