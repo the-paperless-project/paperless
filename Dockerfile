@@ -36,7 +36,7 @@ RUN apk update --no-cache && apk add python3 gnupg libmagic libpq bash shadow cu
 
 WORKDIR /usr/src/paperless/src
 # Mount volumes and set Entrypoint
-VOLUME ["/usr/src/paperless/data", "/usr/src/paperless/media", "/consume", "/export"]
+VOLUME ["/usr/src/paperless/data", "/usr/src/paperless/media", "/consume", "/export", "/usr/src/paperless/static"]
 ENTRYPOINT ["/sbin/docker-entrypoint.sh"]
 CMD ["--help"]
 
