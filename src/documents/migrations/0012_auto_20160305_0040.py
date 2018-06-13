@@ -19,7 +19,7 @@ class GnuPG(object):
     A handy singleton to use when handling encrypted files.
     """
 
-    gpg = gnupg.GPG(gnupghome=settings.GNUPG_HOME)
+    gpg = gnupg.GPG(homedir=settings.GNUPG_HOME)
 
     @classmethod
     def decrypted(cls, file_handle):
