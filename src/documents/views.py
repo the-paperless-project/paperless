@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.views.generic import DetailView, FormView, TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -34,7 +34,7 @@ class IndexView(TemplateView):
     template_name = "documents/index.html"
 
 
-class FetchView(SessionOrBasicAuthMixin, DetailView):
+class GenericFetchView(DetailView):
 
     model = Document
 
@@ -71,32 +71,28 @@ class FetchView(SessionOrBasicAuthMixin, DetailView):
             return file_handle
         return GnuPG.decrypted(file_handle)
 
-class AnonymousFetchView(DetailView):
 
-    model = SharedDocument
+class FetchView(SessionOrBasicAuthMixin, GenericFetchView):
+    pass
+
+
+class AnonymousFetchView(GenericFetchView):
 
     def get_object(self):
-        return get_object_or_404(self.model, uuid=self.kwargs['uuid'])
 
-    def render_to_response(self, context, **response_kwargs):
-        content_types = {
-            Document.TYPE_PDF: "application/pdf",
-            Document.TYPE_PNG: "image/png",
-            Document.TYPE_JPG: "image/jpeg",
-            Document.TYPE_GIF: "image/gif",
-            Document.TYPE_TIF: "image/tiff",
-        }
-        # import pdb; pdb.set_trace()
-        response = HttpResponse(
-            GnuPG.decrypted(self.object.document.source_file),
-            content_type=content_types[self.object.document.file_type]
-        )
-        response["Content-Disposition"] = 'attachment; filename="{}"'.format(
-            self.object.document.file_name)
+        self.kwargs['kind'] = 'doc'
+        try:
+            shared = SharedDocument.objects.get(uuid=self.kwargs['uuid'])
 
-        self.object.delete()
+            # Destroying the SharedDocument object and return the document
+            document = shared.document
+            shared.delete()
+            return document
+        except SharedDocument.DoesNotExist:
+            raise Http404
 
-        return response
+
+
 
 class PushView(SessionOrBasicAuthMixin, FormView):
     """
