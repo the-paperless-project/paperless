@@ -2,11 +2,11 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core.urlresolvers import reverse
 from django.templatetags.static import static
 
-from .models import Correspondent, Tag, Document, Log
+from .models import Correspondent, Document, Log, SharedDocument, Tag
 
 
 class MonthListFilter(admin.SimpleListFilter):
@@ -215,10 +215,17 @@ class LogAdmin(CommonAdmin):
     list_filter = ("level", "created",)
 
 
+class SharedDocumentAdmin(CommonAdmin):
+    def fetch_url(obj):
+        return reverse('anonymous_fetch', kwargs={'uuid': obj.uuid.hex})
+    list_display = ('uuid', fetch_url)
+
+
 admin.site.register(Correspondent, CorrespondentAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(Log, LogAdmin)
+admin.site.register(SharedDocument, SharedDocumentAdmin)
 
 
 # Unless we implement multi-user, these default registrations don't make sense.

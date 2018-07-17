@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.views.generic import DetailView, FormView, TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
 from paperless.db import GnuPG
@@ -20,7 +20,7 @@ from rest_framework.viewsets import (
 
 from .filters import CorrespondentFilterSet, DocumentFilterSet, TagFilterSet
 from .forms import UploadForm
-from .models import Correspondent, Document, Log, Tag
+from .models import Correspondent, Document, SharedDocument, Log, Tag
 from .serialisers import (
     CorrespondentSerializer,
     DocumentSerializer,
@@ -33,7 +33,7 @@ class IndexView(TemplateView):
     template_name = "documents/index.html"
 
 
-class FetchView(SessionOrBasicAuthMixin, DetailView):
+class GenericFetchView(DetailView):
 
     model = Document
 
@@ -69,6 +69,28 @@ class FetchView(SessionOrBasicAuthMixin, DetailView):
         if self.object.storage_type == Document.STORAGE_TYPE_UNENCRYPTED:
             return file_handle
         return GnuPG.decrypted(file_handle)
+
+
+class FetchView(SessionOrBasicAuthMixin, GenericFetchView):
+    pass
+
+
+class AnonymousFetchView(GenericFetchView):
+
+    def get_object(self):
+
+        self.kwargs['kind'] = 'doc'
+        try:
+            shared = SharedDocument.objects.get(uuid=self.kwargs['uuid'])
+
+            # Destroying the SharedDocument object and return the document
+            document = shared.document
+            shared.delete()
+            return document
+        except SharedDocument.DoesNotExist:
+            raise Http404
+
+
 
 
 class PushView(SessionOrBasicAuthMixin, FormView):
