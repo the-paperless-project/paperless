@@ -216,9 +216,9 @@ class LogAdmin(CommonAdmin):
 
 
 class SharedDocumentAdmin(CommonAdmin):
-    def build_url(obj):
+    def fetch_url(obj):
         return reverse('anonymous_fetch', kwargs={'uuid': obj.uuid.hex})
-    list_display = ('uuid', build_url)
+    list_display = ('uuid', fetch_url)
 
 
 admin.site.register(Correspondent, CorrespondentAdmin)

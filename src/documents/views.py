@@ -1,7 +1,6 @@
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.views.generic import DetailView, FormView, TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404
 from paperless.db import GnuPG
 from paperless.mixins import SessionOrBasicAuthMixin
 from paperless.views import StandardPagination
