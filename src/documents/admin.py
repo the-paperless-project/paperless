@@ -212,9 +212,9 @@ class DocumentAdmin(CommonAdmin):
             extra_context=extra_context
         )
 
-        if request.method == "GET":
-            cl = self.get_changelist_instance(request)
-            self.document_queue = [doc.id for doc in cl.queryset]
+        #if request.method == "GET":
+        #    cl = self.get_changelist_instance(request)
+        #    self.document_queue = [doc.id for doc in cl.queryset]
 
         return response
 
