@@ -11,6 +11,7 @@ Changelog
   pointed this out. `#423`_.
 * Updated dependencies to include (among other things) a security patch to
   requests.
+* Fix how Travis runs so we start getting useful errors.
 
 
 2.5.0
