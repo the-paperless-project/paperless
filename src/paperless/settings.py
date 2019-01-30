@@ -26,6 +26,7 @@ elif os.path.exists("/usr/local/etc/paperless.conf"):
 elif os.path.exists("/usr/local/etc/paperless/paperless.conf"):
     load_dotenv("/usr/local/etc/paperless/paperless.conf")
 
+
 def __get_boolean(key, default="NO"):
     """
     Return a boolean value based on whatever the user has supplied in the
