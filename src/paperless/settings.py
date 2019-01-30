@@ -234,11 +234,11 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 # and the log view from the interface
 
 if os.path.exists("/etc/paperless/logging.yml"):
-    with open("/etc/paperless/logging.yml", 'r'):
-        LOGGING = yaml.load()
+    with open("/etc/paperless/logging.yml", 'r') as config:
+        LOGGING = yaml.load(config)
 elif os.path.exists("/usr/local/etc/paperless/logging.yml"):
-    with open("/usr/local/etc/paperless/logging.yml", 'r'):
-        LOGGING = yaml.load()
+    with open("/usr/local/etc/paperless/logging.yml", 'r') as config:
+        LOGGING = yaml.load(config)
 else:
     LOGGING = {
         "version": 1,
