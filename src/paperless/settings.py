@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import yaml
 
 from dotenv import load_dotenv
 
@@ -18,9 +19,12 @@ from dotenv import load_dotenv
 # Tap paperless.conf if it's available
 if os.path.exists("/etc/paperless.conf"):
     load_dotenv("/etc/paperless.conf")
+elif os.path.exists("/etc/paperless/paperless.conf"):
+    load_dotenv("/etc/paperless/paperless.conf")
 elif os.path.exists("/usr/local/etc/paperless.conf"):
     load_dotenv("/usr/local/etc/paperless.conf")
-
+elif os.path.exists("/usr/local/etc/paperless/paperless.conf"):
+    load_dotenv("/usr/local/etc/paperless/paperless.conf")
 
 def __get_boolean(key, default="NO"):
     """
@@ -222,18 +226,32 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 # Logging
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "consumer": {
-            "class": "documents.loggers.PaperlessLogger",
-        }
-    },
-    "loggers": {
-        "documents": {
-            "handlers": ["consumer"],
-            "level": os.getenv("PAPERLESS_CONSUMER_LOG_LEVEL", "INFO"),
+# Django use the python dictConfig format for logging. For more info See:
+#  * https://docs.djangoproject.com/en/2.1/topics/logging/
+#  * https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
+#
+# Removing the default logging configuration will disable logging into the database
+# and the log view from the interface
+
+if os.path.exists("/etc/paperless/logging.yml"):
+    with open("/etc/paperless/logging.yml", 'r'):
+        LOGGING = yaml.load()
+elif os.path.exists("/usr/local/etc/paperless/logging.yml"):
+    with open("/usr/local/etc/paperless/logging.yml", 'r'):
+        LOGGING = yaml.load()
+else:
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "consumer": {
+                "class": "documents.loggers.PaperlessLogger",
+            }
+        },
+        "loggers": {
+            "documents": {
+                "handlers": ["consumer"],
+                "level": os.getenv("PAPERLESS_CONSUMER_LOG_LEVEL", "INFO"),
         },
     },
 }
