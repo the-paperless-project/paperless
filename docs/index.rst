@@ -37,6 +37,7 @@ Contents
    setup
    consumption
    api
+   logging
    utilities
    guesswork
    migrating
