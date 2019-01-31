@@ -257,6 +257,18 @@ else:
     },
 }
 
+if os.getenv("PAPERLESS_SENTRY_DSN"):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_logging = LoggingIntegration(
+        level=logging.INFO,        # Capture info and above as breadcrumbs
+        event_level=logging.ERROR  # Send errors as events
+    )
+    sentry_sdk.init(
+        dsn=os.getenv("PAPERLESS_SENTRY_DSN"),
+        integrations=[sentry_logging, DjangoIntegration()]
+    )
 
 # The default language that tesseract will attempt to use when parsing
 # documents.  It should be a 3-letter language code consistent with ISO 639.
