@@ -1,10 +1,23 @@
 from django.test import TestCase
 from unittest import mock
 from tempfile import TemporaryDirectory
+from io import StringIO
+import pytest
 
 from ..consumer import Consumer
 from ..models import FileInfo, Tag
 
+
+def error_on_call_n(error, n):
+    """Returns an object which raises an error on the n-th call"""
+    count = [0]
+    def error_object(*args, **kwargs):
+        if count[0] == n:
+            raise error
+        else:
+            count[0] += 1
+        return mock.DEFAULT
+    return error_object
 
 class TestConsumer(TestCase):
 
@@ -16,6 +29,33 @@ class TestConsumer(TestCase):
             self._get_consumer()._get_parser_class("doc.pdf"),
             self.DummyParser
         )
+
+    def test_open_errors(self):
+        """
+        Test that exceptions on open do not crash the consumer
+
+        It is not enough to test the consumption process with `open` throwing
+        an error everytime.  The first open call could succeed, but then the
+        file gets moved or permission changed by another process (e.g. user
+        manually intervening or a second paperless process).  Thus we need to
+        check what happens when only the n-th call fails.
+        """
+        
+        # open can throw PermissionError or FileNotFoundError
+        for error in [PermissionError(), FileNotFoundError()]:
+            # Check exception on n-th open call
+            for n in range(0, 4):
+                # Properly mock open
+                mockfile = mock.Mock()
+                mockfile_context_manager = mock.MagicMock()
+                # Return "I'm a pdf" on read()
+                mockfile_context_manager.read.return_value = StringIO("I'm a pdf")
+                mockfile.__enter__ = mockfile_context_manager
+                mockfile.__exit__ = mock.MagicMock()
+                with mock.patch("builtins.open", side_effect=error_on_call_n(error, n)) as mockopen:
+                    mockopen.return_value = mockfile
+                    with TemporaryDirectory() as tmpdir:
+                        consumer = Consumer(tmpdir).try_consume_file("testfile.pdf")
 
     @mock.patch("documents.consumer.os.makedirs")
     @mock.patch("documents.consumer.os.path.exists", return_value=True)
