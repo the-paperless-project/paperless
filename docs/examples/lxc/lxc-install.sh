@@ -6,7 +6,7 @@
 # Will set-up paperless, apache2 and proftpd
 #
 # lxc launch ubuntu: paperless
-# lxc exec paperless -- sh -c "wget https://raw.githubusercontent.com/danielquinn/paperless/master/scripts/lxc/lxc-install.sh && /bin/bash lxc-install.sh"
+# lxc exec paperless -- sh -c "wget https://raw.githubusercontent.com/danielquinn/paperless/master/docs/examples/lxc/lxc-install.sh && /bin/bash lxc-install.sh"
 #
 #
 
