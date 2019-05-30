@@ -14,6 +14,8 @@ from django.utils import timezone
 from django.utils.text import slugify
 from fuzzywuzzy import fuzz
 
+from paperless.utils import slugify as slugifyOCR
+
 from .managers import LogManager
 
 try:
@@ -221,6 +223,19 @@ class Document(models.Model):
                   "primarily used for searching."
     )
 
+    searchable_content = models.TextField(
+        db_index=True,
+        blank=True,
+        editable=False,
+    )
+
+    searchable_title = models.CharField(
+        max_length=128,
+        blank=True,
+        db_index=True,
+        editable=False,
+    )
+
     file_type = models.CharField(
         max_length=4,
         editable=False,
@@ -265,6 +280,13 @@ class Document(models.Model):
         if self.correspondent or self.title:
             return "{}: {}".format(created, self.correspondent or self.title)
         return str(created)
+
+    def save(self, *args, **kwargs):
+        if self.title is not None:
+            self.searchable_title = slugifyOCR(self.title)
+        if self.content is not None:
+            self.searchable_content = slugifyOCR(self.content)
+        return super().save(*args, **kwargs)
 
     @property
     def source_path(self):

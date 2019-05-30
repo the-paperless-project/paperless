@@ -21,3 +21,29 @@ class TestDocument(TestCase):
             mock_unlink.assert_any_call(file_path)
             mock_unlink.assert_any_call(thumb_path)
             self.assertEqual(mock_unlink.call_count, 2)
+
+    def test_sulgified_title_and_content(self):
+        document = Document.objects.create(
+            title="Title",
+            content="Content",
+            checksum="azerty1"
+        )
+        self.assertEqual(document.title, "Title")
+        self.assertEqual(document.content, "Content")
+        self.assertEqual(document.searchable_title, "title")
+        self.assertEqual(document.searchable_content, "content")
+
+        document = Document.objects.create(
+            title="Zürich Weiß",
+            content="Telefónica ééé aaa",
+            checksum="azerty2"
+        )
+        self.assertEqual(document.searchable_title, "zurich weiss")
+        self.assertEqual(document.searchable_content, "telefonica eee aaa")
+
+
+        document = Document.objects.create(checksum="azerty3")
+        self.assertEqual(document.title, '')
+        self.assertEqual(document.content, '')
+        self.assertEqual(document.searchable_title, '')
+        self.assertEqual(document.searchable_content, '')
