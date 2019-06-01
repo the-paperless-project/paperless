@@ -41,7 +41,6 @@ class TestDocument(TestCase):
         self.assertEqual(document.searchable_title, "zurich weiss")
         self.assertEqual(document.searchable_content, "telefonica eee aaa")
 
-
         document = Document.objects.create(checksum="azerty3")
         self.assertEqual(document.title, '')
         self.assertEqual(document.content, '')

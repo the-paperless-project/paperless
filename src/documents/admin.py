@@ -172,7 +172,12 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
             "all": ("paperless.css",)
         }
 
-    search_fields = ("correspondent__name", "searchable_title", "searchable_content", "tags__name")
+    search_fields = (
+        "correspondent__name",
+        "searchable_title",
+        "searchable_content",
+        "tags__name",
+    )
     readonly_fields = ("added", "file_type", "storage_type",)
     list_display = ("title", "created", "added", "thumbnail", "correspondent",
                     "tags_")
