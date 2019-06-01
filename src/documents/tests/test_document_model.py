@@ -22,7 +22,7 @@ class TestDocument(TestCase):
             mock_unlink.assert_any_call(thumb_path)
             self.assertEqual(mock_unlink.call_count, 2)
 
-    def test_sulgified_title_and_content(self):
+    def test_searchable_title_and_content(self):
         document = Document.objects.create(
             title="Title",
             content="Content",
