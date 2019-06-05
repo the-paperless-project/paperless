@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 import dateutil.parser
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -184,6 +185,20 @@ class Tag(MatchingModel):
     colour = models.PositiveIntegerField(choices=COLOURS, default=1)
 
 
+class Scan(models.Model):
+    correspondent = models.CharField(max_length=128, blank=True, db_index=True)
+    title = models.CharField(max_length=128, blank=True, db_index=True)
+    file_name = models.CharField(max_length=300)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='scans')
+
+    added = models.DateTimeField(
+        default=timezone.now, editable=False, db_index=True)
+    processed = models.DateTimeField(null=True)
+
+    class Meta:
+        ordering = ("correspondent", "title")
+
+
 class Document(models.Model):
 
     TYPE_PDF = "pdf"
@@ -253,6 +268,8 @@ class Document(models.Model):
 
     added = models.DateTimeField(
         default=timezone.now, editable=False, db_index=True)
+    scan = models.ForeignKey(Scan, null=True, on_delete=models.PROTECT)
+    user = models.ForeignKey(User, null=True, on_delete=models.PROTECT)
 
     class Meta:
         ordering = ("correspondent", "title")

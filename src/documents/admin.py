@@ -338,6 +338,14 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
 
         return format_html("<{} {}/>", kind, attributes)
 
+    
+    def get_queryset(self, request):
+        qs = super(DocumentAdmin, self).get_queryset(request)
+        qs = qs.filter(
+            user=request.user
+        )
+        return qs
+
 
 class LogAdmin(CommonAdmin):
 
