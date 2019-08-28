@@ -57,9 +57,16 @@ class FetchView(SessionOrBasicAuthMixin, DetailView):
         }
 
         if self.kwargs["kind"] == "thumb":
+            #response = HttpResponse(
+            #    self._get_raw_data(self.object.thumbnail_file),
+            #    content_type="image/webp"
+            #)
             response = HttpResponse(
-                self._get_raw_data(self.object.thumbnail_file),
-                content_type="image/webp"
+                "<picture>
+                    <source srcset="%s" type="image/png">
+                    <source srcset="%s" type="image/webp">
+                    <img src="%s" alt="Alt Text!">
+                </picture>" % (self.object.thumbnail_path, self.object.thumbnail_path_webp, self.object.thumbnail_path)
             )
             cache.patch_cache_control(response, max_age=31536000, private=True)
             return response

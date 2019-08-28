@@ -295,7 +295,7 @@ class Document(models.Model):
     @property
     def thumbnail_path(self):
 
-        file_name = "{:07}.webp".format(self.pk)
+        file_name = "{:07}.png".format(self.pk)
         if self.storage_type == self.STORAGE_TYPE_GPG:
             file_name += ".gpg"
 
@@ -312,6 +312,28 @@ class Document(models.Model):
 
     @property
     def thumbnail_url(self):
+        return reverse("fetch", kwargs={"kind": "thumb", "pk": self.pk})
+
+    @property
+    def thumbnail_path_webp(self):
+
+        file_name = "{:07}.webp".format(self.pk)
+        if self.storage_type == self.STORAGE_TYPE_GPG:
+            file_name += ".gpg"
+
+        return os.path.join(
+            settings.MEDIA_ROOT,
+            "documents",
+            "thumbnails",
+            file_name
+        )
+
+    @property
+    def thumbnail_file_webp(self):
+        return open(self.thumbnail_path, "rb")
+
+    @property
+    def thumbnail_url_webp(self):
         return reverse("fetch", kwargs={"kind": "thumb", "pk": self.pk})
 
 

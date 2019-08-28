@@ -150,11 +150,13 @@ class Consumer:
 
         try:
             thumbnail = parsed_document.get_optimised_thumbnail()
+            thumbnail_webp = parsed_document.get_thumbnail_webp()
             date = parsed_document.get_date()
             document = self._store(
                 parsed_document.get_text(),
                 doc,
                 thumbnail,
+                thumbnail_webp,
                 date
             )
         except ParseError as e:
@@ -202,7 +204,7 @@ class Consumer:
         return sorted(
             options, key=lambda _: _["weight"], reverse=True)[0]["parser"]
 
-    def _store(self, text, doc, thumbnail, date):
+    def _store(self, text, doc, thumbnail, thumbnail_webp date):
 
         file_info = FileInfo.from_path(doc)
 
@@ -233,6 +235,7 @@ class Consumer:
 
         self._write(document, doc, document.source_path)
         self._write(document, thumbnail, document.thumbnail_path)
+        self._write(document, thumbnail_webp, document.thumbnail_path_webp)
 
         self.log("info", "Completed")
 

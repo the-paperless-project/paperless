@@ -45,7 +45,7 @@ class RasterisedDocumentParser(DocumentParser):
         The thumbnail of a PDF is just a 500px wide image of the first page.
         """
 
-        out_path = os.path.join(self.tempdir, "convert.webp")
+        out_path = os.path.join(self.tempdir, "convert.png")
 
         # Run convert to get a decent thumbnail
         try:
@@ -83,6 +83,32 @@ class RasterisedDocumentParser(DocumentParser):
                 out_path
             )
 
+        return out_path
+
+    def get_thumbnail_webp(self):
+        """
+        The thumbnail of a PDF is just a 500px wide webp image of the first page.
+        """
+
+        out_path = os.path.join(self.tempdir, "convert.webp")
+
+        # Run convert to get a decent thumbnail
+        try:
+            run_convert(
+                self.CONVERT,
+                "-scale", "500x5000",
+                "-alpha", "remove",
+                "-strip", "-trim",
+                "{}[0]".format(self.document_path),
+                out_path
+            )
+        except ParseError:
+            # if convert fails, fall back to extracting
+            # the first PDF page as a PNG using Ghostscript
+            self.log(
+                "warning",
+                "WebP thumbnail generation with ImageMagick failed"
+            )
         return out_path
 
     def _is_ocred(self):

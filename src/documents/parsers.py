@@ -56,9 +56,15 @@ class DocumentParser:
         """
         raise NotImplementedError()
 
+    def get_thumbnail_webp(self):
+        """
+        Returns the path to a webp file we can use as a thumbnail for this document.
+        """
+        raise NotImplementedError()
+
     def optimise_thumbnail(self, in_path):
 
-        if not in_path.endswith(".png")
+        if not in_path.endswith(".png"):
             return in_path
         out_path = os.path.join(self.tempdir, "optipng.png")
 
