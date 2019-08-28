@@ -284,11 +284,28 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         return self._html_tag(
             "a",
             self._html_tag(
-                "img",
-                src=reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
-                width=180,
-                alt="Thumbnail of {}".format(obj.file_name),
-                title=obj.file_name
+                "picture",
+                self._html_tag(
+                    "source",
+                    srcset = reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
+                    width=180,
+                    alt="Thumbnail of {}".format(obj.file_name),
+                    title=obj.file_name
+                ),
+                self._html_tag(
+                    "source",
+                    srcset= reverse("fetch", kwargs={"kind": "thumbwebp", "pk": obj.pk}),
+                    width=180,
+                    alt="Thumbnail of {}".format(obj.file_name),
+                    title=obj.file_name
+                ),
+                self._html_tag(
+                    "img",
+                    src=reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
+                    width=180,
+                    alt="Thumbnail of {}".format(obj.file_name),
+                    title=obj.file_name
+                )
             ),
             href=obj.download_url
         )
