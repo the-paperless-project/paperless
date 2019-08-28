@@ -305,7 +305,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
                     title=obj.file_name
                 )
 
-        return '<a href="%s"><picture>%s%s%s</picture></a>' % (obj.download_url, html_thumb_srcset, html_thumbwebp_srcset, html_thumb_imgsrc)
+        return '<a href="%s"><picture>%s%s%s</picture></a>' % (obj.download_url, html_thumbwebp_srcset, html_thumb_srcset, html_thumb_imgsrc)
 
 
     @mark_safe
