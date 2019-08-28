@@ -284,6 +284,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         html_thumb_srcset = self._html_tag(
                     "source",
                     srcset = reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
+                    type = "image/png",
                     width=180,
                     alt="Thumbnail of {}".format(obj.file_name),
                     title=obj.file_name
@@ -292,6 +293,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         html_thumbwebp_srcset = self._html_tag(
                     "source",
                     srcset= reverse("fetch", kwargs={"kind": "thumbwebp", "pk": obj.pk}),
+                    type = "image/webp",
                     width=180,
                     alt="Thumbnail of {}".format(obj.file_name),
                     title=obj.file_name
