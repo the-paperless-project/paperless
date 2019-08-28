@@ -330,11 +330,11 @@ class Document(models.Model):
 
     @property
     def thumbnail_file_webp(self):
-        return open(self.thumbnail_path, "rb")
+        return open(self.thumbnail_path_webp, "rb")
 
     @property
     def thumbnail_url_webp(self):
-        return reverse("fetch", kwargs={"kind": "thumb", "pk": self.pk})
+        return reverse("fetch", kwargs={"kind": "thumbwebp", "pk": self.pk})
 
 
 class Log(models.Model):
