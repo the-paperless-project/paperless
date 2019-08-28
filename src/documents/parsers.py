@@ -58,6 +58,8 @@ class DocumentParser:
 
     def optimise_thumbnail(self, in_path):
 
+        if not in_path.endswith(".png")
+            return in_path
         out_path = os.path.join(self.tempdir, "optipng.png")
 
         args = (self.OPTIPNG, "-o5", in_path, "-out", out_path)

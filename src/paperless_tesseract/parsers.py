@@ -45,7 +45,7 @@ class RasterisedDocumentParser(DocumentParser):
         The thumbnail of a PDF is just a 500px wide image of the first page.
         """
 
-        out_path = os.path.join(self.tempdir, "convert.png")
+        out_path = os.path.join(self.tempdir, "convert.webp")
 
         # Run convert to get a decent thumbnail
         try:
