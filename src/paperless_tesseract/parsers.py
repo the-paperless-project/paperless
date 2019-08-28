@@ -109,6 +109,7 @@ class RasterisedDocumentParser(DocumentParser):
                 "warning",
                 "WebP thumbnail generation with ImageMagick failed"
             )
+            return
         return out_path
 
     def _is_ocred(self):
