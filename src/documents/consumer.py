@@ -204,7 +204,7 @@ class Consumer:
         return sorted(
             options, key=lambda _: _["weight"], reverse=True)[0]["parser"]
 
-    def _store(self, text, doc, thumbnail, thumbnail_webp date):
+    def _store(self, text, doc, thumbnail, thumbnail_webp, date):
 
         file_info = FileInfo.from_path(doc)
 
