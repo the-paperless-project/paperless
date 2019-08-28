@@ -302,6 +302,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         html_thumb_imgsrc = self._html_tag(
                     "img",
                     src=reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
+                    type = "image/png",
                     width=180,
                     alt="Thumbnail of {}".format(obj.file_name),
                     title=obj.file_name
