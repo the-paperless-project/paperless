@@ -11,7 +11,7 @@ from paperless.db import GnuPG
 
 from ...mixins import Renderable
 
-from documents.settings import EXPORTER_FILE_NAME, EXPORTER_THUMBNAIL_NAME
+from documents.settings import EXPORTER_FILE_NAME, EXPORTER_THUMBNAIL_NAME, EXPORTER_THUMBNAIL_WEBP_NAME
 
 
 class Command(Renderable, BaseCommand):
@@ -89,10 +89,14 @@ class Command(Renderable, BaseCommand):
 
             doc_file = record[EXPORTER_FILE_NAME]
             thumb_file = record[EXPORTER_THUMBNAIL_NAME]
+            thumb_webp_file = record[EXPORTER_THUMBNAIL_WEBP_NAME]
             document = Document.objects.get(pk=record["pk"])
 
             document_path = os.path.join(self.source, doc_file)
             thumbnail_path = os.path.join(self.source, thumb_file)
+            
+            if thumb_webp_file:
+                thumbnail_webp_path = os.path.join(self.source, thumb_webp_file)
 
             if settings.PASSPHRASE:
 
@@ -108,10 +112,20 @@ class Command(Renderable, BaseCommand):
                             thumb_file, document.thumbnail_path))
                         encrypted.write(GnuPG.encrypted(unencrypted))
 
+                if os.path.exists(thumbnail_webp_path):
+                    with open(thumbnail_webp_path, "rb") as unencrypted:
+                        with open(document.thumbnail_webp_path, "wb") as encrypted:
+                            print("Encrypting {} and saving it to {}".format(
+                                thumb_webp_file, document.thumbnail_path_webp))
+                            encrypted.write(GnuPG.encrypted(unencrypted))
+
             else:
 
                 shutil.copy(document_path, document.source_path)
                 shutil.copy(thumbnail_path, document.thumbnail_path)
+
+                if os.path.exists(thumbnail_webp_path):
+                    shutil.copy(thumbnail_webp_path, document.thumbnail_path_webp)
 
         # Reset the storage type to whatever we've used while importing
 

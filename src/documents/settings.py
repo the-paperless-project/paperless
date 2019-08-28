@@ -2,3 +2,4 @@
 # for exporting/importing commands
 EXPORTER_FILE_NAME = "__exported_file_name__"
 EXPORTER_THUMBNAIL_NAME = "__exported_thumbnail_name__"
+EXPORTER_THUMBNAIL_WEBP_NAME = "__exported_thumbnail_webp_name__"
