@@ -281,34 +281,32 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
 
     @mark_safe
     def thumbnail(self, obj):
-        return self._html_tag(
-            "a",
-            self._html_tag(
-                "picture",
-                self._html_tag(
+        html_thumb_srcset = self._html_tag(
                     "source",
                     srcset = reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
                     width=180,
                     alt="Thumbnail of {}".format(obj.file_name),
                     title=obj.file_name
-                ),
-                self._html_tag(
+                )
+
+        html_thumbwebp_srcset = self._html_tag(
                     "source",
                     srcset= reverse("fetch", kwargs={"kind": "thumbwebp", "pk": obj.pk}),
                     width=180,
                     alt="Thumbnail of {}".format(obj.file_name),
                     title=obj.file_name
-                ),
-                self._html_tag(
+                )
+
+        html_thumb_imgsrc = self._html_tag(
                     "img",
                     src=reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
                     width=180,
                     alt="Thumbnail of {}".format(obj.file_name),
                     title=obj.file_name
                 )
-            ),
-            href=obj.download_url
-        )
+
+        return '<a href="%s"><picture>%s%s%s</picture></a>' % (obj.download_url, html_thumb_srcset, html_thumbwebp_srcset, html_thumb_imgsrc)
+
 
     @mark_safe
     def tags_(self, obj):
