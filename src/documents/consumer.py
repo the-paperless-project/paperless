@@ -235,7 +235,7 @@ class Consumer:
 
         self._write(document, doc, document.source_path)
         self._write(document, thumbnail, document.thumbnail_path)
-        self._write(document, thumbnail_webp, document.thumbnail_path_webp)
+        self._write(document, thumbnail_webp, document.thumbnail_webp_path)
 
         self.log("info", "Completed")
 

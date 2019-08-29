@@ -91,9 +91,9 @@ class Command(Renderable, BaseCommand):
                     f.write(GnuPG.decrypted(document.thumbnail_file))
                     os.utime(thumbnail_target, times=(t, t))
 
-                if os.path.exists(document.thumbnail_path_webp):
+                if os.path.exists(document.thumbnail_webp_path):
                     with open(thumbnail_webp_target, "wb") as f:
-                        f.write(GnuPG.decrypted(document.thumbnail_file_webp))
+                        f.write(GnuPG.decrypted(document.thumbnail_webp_file))
                         os.utime(thumbnail_webp_target, times=(t, t))
 
             else:
@@ -101,8 +101,8 @@ class Command(Renderable, BaseCommand):
                 shutil.copy(document.source_path, file_target)
                 shutil.copy(document.thumbnail_path, thumbnail_target)
 
-                if os.path.exists(document.thumbnail_path_webp):
-                    shutil.copy(document.thumbnail_path_webp, thumbnail_webp_target)
+                if os.path.exists(document.thumbnail_webp_path):
+                    shutil.copy(document.thumbnail_webp_path, thumbnail_webp_target)
 
         manifest += json.loads(
             serializers.serialize("json", Correspondent.objects.all()))
