@@ -42,7 +42,7 @@ class RasterisedDocumentParser(DocumentParser):
 
     def get_thumbnail(self):
         """
-        The thumbnail of a PDF is just a 500px wide image of the first page.
+        Thumbnail of a PDF as a 500px wide png image of the first page.
         """
 
         out_path = os.path.join(self.tempdir, "convert.png")
@@ -87,7 +87,7 @@ class RasterisedDocumentParser(DocumentParser):
 
     def get_thumbnail_webp(self):
         """
-        The thumbnail of a PDF is just a 500px wide webp image of the first page.
+        Thumbnail of a PDF as a 500px wide WebP image of the first page.
         """
 
         out_path = os.path.join(self.tempdir, "convert.webp")

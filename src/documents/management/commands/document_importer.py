@@ -11,7 +11,9 @@ from paperless.db import GnuPG
 
 from ...mixins import Renderable
 
-from documents.settings import EXPORTER_FILE_NAME, EXPORTER_THUMBNAIL_NAME, EXPORTER_THUMBNAIL_WEBP_NAME
+from documents.settings import (EXPORTER_FILE_NAME,
+                                EXPORTER_THUMBNAIL_NAME,
+                                EXPORTER_THUMBNAIL_WEBP_NAME)
 
 
 class Command(Renderable, BaseCommand):
@@ -94,41 +96,30 @@ class Command(Renderable, BaseCommand):
 
             document_path = os.path.join(self.source, doc_file)
             thumbnail_path = os.path.join(self.source, thumb_file)
-            
+
             if thumb_webp_file:
-                thumbnail_webp_path = os.path.join(self.source, thumb_webp_file)
+                thumbnail_webp_path = os.path.join(self.source,
+                                                   thumb_webp_file)
 
             if settings.PASSPHRASE:
+                _write_encrypted_to_document(document_path,
+                                             document.source_path)
 
-                with open(document_path, "rb") as unencrypted:
-                    with open(document.source_path, "wb") as encrypted:
-                        print("Encrypting {} and saving it to {}".format(
-                            doc_file, document.source_path))
-                        encrypted.write(GnuPG.encrypted(unencrypted))
+                _write_encrypted_to_document(thumbnail_path,
+                                             document.thumbnail_path)
 
-                with open(thumbnail_path, "rb") as unencrypted:
-                    with open(document.thumbnail_path, "wb") as encrypted:
-                        print("Encrypting {} and saving it to {}".format(
-                            thumb_file, document.thumbnail_path))
-                        encrypted.write(GnuPG.encrypted(unencrypted))
-
-                if os.path.exists(thumbnail_webp_path):
-                    with open(thumbnail_webp_path, "rb") as unencrypted:
-                        with open(document.thumbnail_webp_path, "wb") as encrypted:
-                            print("Encrypting {} and saving it to {}".format(
-                                thumb_webp_file, document.thumbnail_path_webp))
-                            encrypted.write(GnuPG.encrypted(unencrypted))
+                _write_encrypted_to_document(thumbnail_webp_path,
+                                             document.thumbnail_webp_path)
 
             else:
-
                 shutil.copy(document_path, document.source_path)
                 shutil.copy(thumbnail_path, document.thumbnail_path)
 
                 if os.path.exists(thumbnail_webp_path):
-                    shutil.copy(thumbnail_webp_path, document.thumbnail_path_webp)
+                    shutil.copy(thumbnail_webp_path,
+                                document.thumbnail_path_webp)
 
         # Reset the storage type to whatever we've used while importing
-
         storage_type = Document.STORAGE_TYPE_UNENCRYPTED
         if settings.PASSPHRASE:
             storage_type = Document.STORAGE_TYPE_GPG
@@ -138,3 +129,15 @@ class Command(Renderable, BaseCommand):
         ).update(
             storage_type=storage_type
         )
+
+    @staticmethod
+    def _write_encrypted_to_document(file_to_encrypt, document_target):
+        if not os.path.exists(file_to_encrypt):
+            return
+
+        with open(file_to_encrypt, "rb") as unencrypted:
+            with open(document_target, "wb") as encrypted:
+                print("Encrypting {} and saving it to {}".format(
+                    file_to_encrypt, document_target))
+
+                encrypted.write(GnuPG.encrypted(unencrypted))

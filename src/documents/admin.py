@@ -282,34 +282,39 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
     @mark_safe
     def thumbnail(self, obj):
         html_thumb_srcset = self._html_tag(
-                    "source",
-                    srcset = reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
-                    type = "image/png",
-                    width=180,
-                    alt="Thumbnail of {}".format(obj.file_name),
-                    title=obj.file_name
-                )
+            "source",
+            srcset=reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
+            type="image/png",
+            width=180,
+            alt="Thumbnail of {}".format(obj.file_name),
+            title=obj.file_name
+            )
 
         html_thumbwebp_srcset = self._html_tag(
-                    "source",
-                    srcset= reverse("fetch", kwargs={"kind": "thumbwebp", "pk": obj.pk}),
-                    type = "image/webp",
-                    width=180,
-                    alt="Thumbnail of {}".format(obj.file_name),
-                    title=obj.file_name
-                )
+            "source",
+            srcset=reverse("fetch", kwargs={"kind": "thumbwebp",
+                                            "pk": obj.pk}),
+            type="image/webp",
+            width=180,
+            alt="Thumbnail of {}".format(obj.file_name),
+            title=obj.file_name
+            )
 
         html_thumb_imgsrc = self._html_tag(
-                    "img",
-                    src=reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
-                    type = "image/png",
-                    width=180,
-                    alt="Thumbnail of {}".format(obj.file_name),
-                    title=obj.file_name
-                )
+            "img",
+            src=reverse("fetch", kwargs={"kind": "thumb", "pk": obj.pk}),
+            type="image/png",
+            width=180,
+            alt="Thumbnail of {}".format(obj.file_name),
+            title=obj.file_name
+            )
 
-        return '<a href="%s"><picture>%s%s%s</picture></a>' % (obj.download_url, html_thumbwebp_srcset, html_thumb_srcset, html_thumb_imgsrc)
-
+        return '<a href="%s"><picture>%s%s%s</picture></a>' % (
+            obj.download_url,
+            html_thumbwebp_srcset,
+            html_thumb_srcset,
+            html_thumb_imgsrc
+            )
 
     @mark_safe
     def tags_(self, obj):

@@ -52,13 +52,13 @@ class DocumentParser:
 
     def get_thumbnail(self):
         """
-        Returns the path to a file we can use as a thumbnail for this document.
+        Returns the png thumbnail file path for this document.
         """
         raise NotImplementedError()
 
     def get_thumbnail_webp(self):
         """
-        Returns the path to a webp file we can use as a thumbnail for this document.
+        Returns the WebP thumbnail file path for this document.
         """
         raise NotImplementedError()
 
