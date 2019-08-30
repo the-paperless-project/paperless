@@ -32,7 +32,7 @@ class TextDocumentParser(DocumentParser):
         text_color = "black"  # text color
         psize = [500, 647]  # icon size
         n_lines = 50  # number of lines to show
-        out_path = os.path.join(self.tempdir, "convert.png")
+        out_path = os.path.join(self.tempdir, "convert.jpg")
 
         temp_bg = os.path.join(self.tempdir, "bg.png")
         temp_txlayer = os.path.join(self.tempdir, "tx.png")

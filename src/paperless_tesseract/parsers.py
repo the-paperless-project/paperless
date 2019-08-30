@@ -45,7 +45,7 @@ class RasterisedDocumentParser(DocumentParser):
         The thumbnail of a PDF is just a 500px wide image of the first page.
         """
 
-        out_path = os.path.join(self.tempdir, "convert.png")
+        out_path = os.path.join(self.tempdir, "convert.jpg")
 
         # Run convert to get a decent thumbnail
         try:
@@ -65,7 +65,7 @@ class RasterisedDocumentParser(DocumentParser):
                 "Thumbnail generation with ImageMagick failed, "
                 "falling back to Ghostscript."
             )
-            gs_out_path = os.path.join(self.tempdir, "gs_out.png")
+            gs_out_path = os.path.join(self.tempdir, "gs_out.jpg")
             cmd = [self.GHOSTSCRIPT,
                    "-q",
                    "-sDEVICE=pngalpha",

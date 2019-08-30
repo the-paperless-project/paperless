@@ -88,15 +88,15 @@ def move_documents_and_create_thumbnails(apps, schema_editor):
             "-scale", "500x5000",
             "-alpha", "remove",
             orig_target,
-            os.path.join(thumb_temp, "convert-%04d.png")
+            os.path.join(thumb_temp, "convert-%04d.jpg")
         )).wait()
 
-        thumb_source = os.path.join(thumb_temp, "convert-0000.png")
+        thumb_source = os.path.join(thumb_temp, "convert-0000.jpg")
         thumb_target = os.path.join(
             settings.MEDIA_ROOT,
             "documents",
             "thumbnails",
-            re.sub(r"(\d+)\.\w+(\.gpg)", "\\1.png\\2", f)
+            re.sub(r"(\d+)\.\w+(\.gpg)", "\\1.jpg\\2", f)
         )
         with open(thumb_source, "rb") as unencrypted:
             with open(thumb_target, "wb") as encrypted:

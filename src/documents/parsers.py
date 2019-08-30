@@ -67,7 +67,7 @@ class DocumentParser:
         return out_path
 
     def get_optimised_thumbnail(self):
-        return self.optimise_thumbnail(self.get_thumbnail())
+        return self.get_thumbnail()
 
     def get_text(self):
         """

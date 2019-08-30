@@ -295,7 +295,7 @@ class Document(models.Model):
     @property
     def thumbnail_path(self):
 
-        file_name = "{:07}.png".format(self.pk)
+        file_name = "{:07}.jpg".format(self.pk)
         if self.storage_type == self.STORAGE_TYPE_GPG:
             file_name += ".gpg"
 
