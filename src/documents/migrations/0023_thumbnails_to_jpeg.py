@@ -54,9 +54,9 @@ def create_jpg_thumbnails(apps, schema_editor):
             with open(new_thumb, "rb") as unencrypted:
                 with open(new_thumb_encrypted, "wb") as encrypted:
                     encrypted.write(GnuPG.encrypted(unencrypted))
-            #os.remove(thumb_full)
-            #os.remove(thumb_decrypted)
-            #os.remove(new_thumb)
+            os.remove(thumb_full)
+            os.remove(thumb_decrypted)
+            os.remove(new_thumb)
 
 
 def convert_png_to_jpg(png_path, jpg_path):
