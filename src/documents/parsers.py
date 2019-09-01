@@ -56,19 +56,6 @@ class DocumentParser:
         """
         raise NotImplementedError()
 
-    def optimise_thumbnail(self, in_path):
-
-        out_path = os.path.join(self.tempdir, "optipng.png")
-
-        args = (self.OPTIPNG, "-o5", in_path, "-out", out_path)
-        if not subprocess.Popen(args).wait() == 0:
-            raise ParseError("Optipng failed at {}".format(args))
-
-        return out_path
-
-    def get_optimised_thumbnail(self):
-        return self.get_thumbnail()
-
     def get_text(self):
         """
         Returns the text from the document and only the text.
