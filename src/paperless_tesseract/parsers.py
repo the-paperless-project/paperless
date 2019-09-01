@@ -59,7 +59,7 @@ class RasterisedDocumentParser(DocumentParser):
             )
         except ParseError:
             # if convert fails, fall back to extracting
-            # the first PDF page as a PNG using Ghostscript
+            # the first PDF page as a jpg using Ghostscript
             self.log(
                 "warning",
                 "Thumbnail generation with ImageMagick failed, "
