@@ -266,9 +266,6 @@ CONVERT_DENSITY = os.getenv("PAPERLESS_CONVERT_DENSITY")
 # Ghostscript
 GS_BINARY = os.getenv("PAPERLESS_GS_BINARY", "gs")
 
-# OptiPNG
-OPTIPNG_BINARY = os.getenv("PAPERLESS_OPTIPNG_BINARY", "optipng")
-
 # Unpaper
 UNPAPER_BINARY = os.getenv("PAPERLESS_UNPAPER_BINARY", "unpaper")
 

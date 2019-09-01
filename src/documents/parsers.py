@@ -42,7 +42,6 @@ class DocumentParser:
     SCRATCH = settings.SCRATCH_DIR
     DATE_ORDER = settings.DATE_ORDER
     FILENAME_DATE_ORDER = settings.FILENAME_DATE_ORDER
-    OPTIPNG = settings.OPTIPNG_BINARY
 
     def __init__(self, path):
         self.document_path = path
