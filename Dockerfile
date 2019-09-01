@@ -20,7 +20,6 @@ RUN apk add --no-cache \
       imagemagick \
       libmagic \
       libpq \
-      optipng \
       poppler \
       python3 \
       shadow \
