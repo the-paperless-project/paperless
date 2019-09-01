@@ -39,12 +39,13 @@ def create_jpg_thumbnails(apps, schema_editor):
 
         if thumb_full.endswith(".jpg") or thumb_full.endswith(".jpg.gpg"):
             continue
-        new_thumb = thumb_full[:-4] + ".jpg"
         if thumb_full.endswith(".png"):
+            new_thumb = thumb_full[:-4] + ".jpg"
             convert_png_to_jpg(thumb_full, new_thumb)
             os.remove(thumb_full)
         if thumb_full.endswith(".png.gpg"):
             thumb_decrypted = thumb_full[:-4]
+            new_thumb = thumb_decrypted[:-4] + ".jpg"
             with open(thumb_full, "rb") as encrypted:
                 with open(thumb_decrypted, "wb") as unencrypted:
                     unencrypted.write(GnuPG.decrypted(encrypted))
@@ -52,10 +53,10 @@ def create_jpg_thumbnails(apps, schema_editor):
             new_thumb_encrypted = new_thumb + ".gpg"
             with open(new_thumb, "rb") as unencrypted:
                 with open(new_thumb_encrypted, "wb") as encrypted:
-                    encrypted.write(GnuPG.decrypted(unencrypted))
-            os.remove(thumb_full)
-            os.remove(thumb_decrypted)
-            os.remove(new_thumb)
+                    encrypted.write(GnuPG.encrypted(unencrypted))
+            #os.remove(thumb_full)
+            #os.remove(thumb_decrypted)
+            #os.remove(new_thumb)
 
 
 def convert_png_to_jpg(png_path, jpg_path):
