@@ -27,18 +27,25 @@ class GnuPG(object):
         ).data
 
 def create_jpg_thumbnails(apps, schema_editor):
-    thumb_files = os.listdir(os.path.join(settings.MEDIA_ROOT, "documents", "thumbnails"))
+    thumb_files = os.listdir(os.path.join(settings.MEDIA_ROOT,
+                                          "documents",
+                                          "thumbnails"))
 
     for thumb in thumb_files:
-        if thumb.endswith(".jpg") or thumb.endswith(".jpg.gpg"):
+        thumb_full = os.path.join(settings.MEDIA_ROOT,
+                                  "documents",
+                                  "thumbnails",
+                                  thumb)
+
+        if thumb_full.endswith(".jpg") or thumb_full.endswith(".jpg.gpg"):
             continue
-        new_thumb = thumb[:-4] + ".jpg"
-        if thumb.endswith(".png"):            
-            convert_png_to_jpg(thumb, new_thumb)
-            os.remove(thumb)
-        if thumb.endswith(".png.gpg"):
-            thumb_decrypted = thumb[:-4]
-            with open(thumb, "rb") as encrypted:
+        new_thumb = thumb_full[:-4] + ".jpg"
+        if thumb_full.endswith(".png"):
+            convert_png_to_jpg(thumb_full, new_thumb)
+            os.remove(thumb_full)
+        if thumb_full.endswith(".png.gpg"):
+            thumb_decrypted = thumb_full[:-4]
+            with open(thumb_full, "rb") as encrypted:
                 with open(thumb_decrypted, "wb") as unencrypted:
                     unencrypted.write(GnuPG.decrypted(encrypted))
             convert_png_to_jpg(thumb_decrypted, new_thumb)
@@ -46,7 +53,7 @@ def create_jpg_thumbnails(apps, schema_editor):
             with open(new_thumb, "rb") as unencrypted:
                 with open(new_thumb_encrypted, "wb") as encrypted:
                     encrypted.write(GnuPG.decrypted(unencrypted))
-            os.remove(thumb)
+            os.remove(thumb_full)
             os.remove(thumb_decrypted)
             os.remove(new_thumb)
 
