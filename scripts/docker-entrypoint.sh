@@ -55,10 +55,15 @@ migrations() {
     fi
 }
 
+collectstatic() {
+    sudo -HEu paperless "/usr/src/paperless/src/manage.py" "collectstatic" "--clear" "--no-input"
+}
+
 initialize() {
     map_uidgid
     set_permissions
     migrations
+    collectstatic
 }
 
 install_languages() {
@@ -99,7 +104,15 @@ if [[ "$1" != "/"* ]]; then
         install_languages "$PAPERLESS_OCR_LANGUAGES"
     fi
 
-    exec sudo -HEu paperless "/usr/src/paperless/src/manage.py" "$@"
+    if [[ "$1" = "gunicorn" ]]; then
+        supplied_args="${@:2}"
+        gunicorn_cmd_args="${supplied_args:---bind=0.0.0.0:8000 --access-logfile=- --log-file=-}"
+
+        cd /usr/src/paperless/src/ && \
+            exec sudo -HEu paperless GUNICORN_CMD_ARGS="$gunicorn_cmd_args" /usr/bin/gunicorn paperless.wsgi
+    else
+        exec sudo -HEu paperless "/usr/src/paperless/src/manage.py" "$@"
+    fi
 fi
 
 exec "$@"
