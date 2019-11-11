@@ -13,11 +13,13 @@ from django.utils.http import urlquote
 from django.utils.safestring import mark_safe
 from djangoql.admin import DjangoQLSearchMixin
 
-from documents.actions import (add_tag_to_selected,
-                               remove_correspondent_from_selected,
-                               remove_tag_from_selected,
-                               set_correspondent_on_selected)
-from paperless.utils import slugify
+from documents.actions import (
+    add_tag_to_selected,
+    remove_correspondent_from_selected,
+    remove_tag_from_selected,
+    set_correspondent_on_selected
+)
+from paperless.utils import make_searchable
 
 from .models import Correspondent, Document, Log, Tag
 
@@ -176,7 +178,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         "correspondent__name",
         "searchable_title",
         "searchable_content",
-        "tags__name",
+        "tags__searchable_name",
     )
     readonly_fields = ("added", "file_type", "storage_type",)
     list_display = ("title", "created", "added", "thumbnail", "correspondent",
@@ -343,7 +345,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         return format_html("<{} {}/>", kind, attributes)
 
     def get_search_results(self, request, queryset, search_term):
-        search_term = slugify(search_term)
+        search_term = make_searchable(search_term)
         return super().get_search_results(request, queryset, search_term)
 
 

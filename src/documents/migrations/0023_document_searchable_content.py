@@ -3,7 +3,13 @@ import unicodedata
 
 from django.db import migrations, models
 
-from paperless.utils import slugify as slugifyOCR
+
+def slugifyOCR(content):
+    return (
+        unicodedata.normalize("NFKD", content.casefold())
+        .encode("ASCII", "ignore")
+        .decode("utf-8")
+    )
 
 
 class Migration(migrations.Migration):
@@ -20,12 +26,16 @@ class Migration(migrations.Migration):
                 doc.searchable_content = slugifyOCR(doc.content)
             doc.save()
 
-    def casefold_backwards(apps, schema_editor):
-        pass
+        Tag = apps.get_model("documents", "Tag")
+
+        for tag in Tag.objects.all():
+            tag.searchable_name = slugifyOCR(tag.name)
+            tag.save()
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         migrations.RemoveField(model_name="document", name="searchable_content"),
         migrations.RemoveField(model_name="document", name="searchable_title"),
+        migrations.RemoveField(model_name="tag", name="searchable_name"),
 
     operations = [
         migrations.AddField(
@@ -40,5 +50,12 @@ class Migration(migrations.Migration):
                 max_length=128, blank=True, db_index=True, editable=False
             ),
         ),
-        migrations.RunPython(casefold_forwards, casefold_backwards),
+        migrations.AddField(
+            model_name="tag",
+            name="searchable_name",
+            field=models.CharField(
+                max_length=128, blank=True, db_index=True, editable=False
+            ),
+        ),
+        migrations.RunPython(casefold_forwards, migrations.RunPython.noop),
     ]

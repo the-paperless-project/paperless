@@ -9,12 +9,11 @@ from collections import OrderedDict
 import dateutil.parser
 from django.conf import settings
 from django.db import models
-from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.text import slugify
 from fuzzywuzzy import fuzz
 
-from paperless.utils import slugify as slugifyOCR
+from paperless.utils import make_searchable
 
 from .managers import LogManager
 
@@ -185,6 +184,15 @@ class Tag(MatchingModel):
 
     colour = models.PositiveIntegerField(choices=COLOURS, default=1)
 
+    searchable_name = models.CharField(
+        max_length=128, blank=True, db_index=True, editable=False,
+    )
+
+    def save(self, *args, **kwargs):
+        if self.name is not None:
+            self.searchable_name = make_searchable(self.name)
+        return super().save(*args, **kwargs)
+
 
 class Document(models.Model):
 
@@ -283,9 +291,9 @@ class Document(models.Model):
 
     def save(self, *args, **kwargs):
         if self.title is not None:
-            self.searchable_title = slugifyOCR(self.title)
+            self.searchable_title = make_searchable(self.title)
         if self.content is not None:
-            self.searchable_content = slugifyOCR(self.content)
+            self.searchable_content = make_searchable(self.content)
         return super().save(*args, **kwargs)
 
     @property
