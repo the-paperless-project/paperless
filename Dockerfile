@@ -55,6 +55,11 @@ RUN apk add --no-cache \
 # Setup entrypoint
     chmod 755 /sbin/docker-entrypoint.sh
 
+# WORKAROUND for missing fonts in container
+RUN apk --no-cache add msttcorefonts-installer fontconfig && \
+    update-ms-fonts && \
+    fc-cache -f
+
 WORKDIR /usr/src/paperless/src
 # Mount volumes and set Entrypoint
 VOLUME ["/usr/src/paperless/data", "/usr/src/paperless/media", "/consume", "/export"]

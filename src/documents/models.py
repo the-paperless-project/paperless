@@ -194,8 +194,12 @@ class Document(models.Model):
     TYPE_TXT = "txt"
     TYPE_CSV = "csv"
     TYPE_MD = "md"
+    TYPE_ODS = "ods"
+    TYPE_ODT = "odt"
+    TYPE_ODP = "odp"
     TYPES = (TYPE_PDF, TYPE_PNG, TYPE_JPG, TYPE_GIF, TYPE_TIF,
-             TYPE_TXT, TYPE_CSV, TYPE_MD)
+             TYPE_TXT, TYPE_CSV, TYPE_MD, TYPE_ODS, TYPE_ODT,
+             TYPE_ODP)
 
     STORAGE_TYPE_UNENCRYPTED = "unencrypted"
     STORAGE_TYPE_GPG = "gpg"
@@ -368,7 +372,7 @@ class FileInfo:
         )
     )
 
-    formats = "pdf|jpe?g|png|gif|tiff?|te?xt|md|csv"
+    formats = "pdf|jpe?g|png|gif|tiff?|te?xt|md|csv|ods|odt|odp"
     REGEXES = OrderedDict([
         ("created-correspondent-title-tags", re.compile(
             r"^(?P<created>\d\d\d\d\d\d\d\d(\d\d\d\d\d\d)?Z) - "

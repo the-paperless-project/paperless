@@ -53,7 +53,12 @@ class FetchView(SessionOrBasicAuthMixin, DetailView):
             Document.TYPE_TIF: "image/tiff",
             Document.TYPE_CSV: "text/csv",
             Document.TYPE_MD:  "text/markdown",
-            Document.TYPE_TXT: "text/plain"
+            Document.TYPE_TXT: "text/plain",
+            Document.TYPE_ODS:
+                "application/vnd.oasis.opendocument.spreadsheet",
+            Document.TYPE_ODT: "application/vnd.oasis.opendocument.text",
+            Document.TYPE_ODP:
+                "application/vnd.oasis.opendocument.presentation"
         }
 
         if self.kwargs["kind"] == "thumb":
