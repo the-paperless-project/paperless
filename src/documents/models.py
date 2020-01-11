@@ -197,9 +197,16 @@ class Document(models.Model):
     TYPE_ODS = "ods"
     TYPE_ODT = "odt"
     TYPE_ODP = "odp"
+    TYPE_XLS = "xls"
+    TYPE_XLSX = "xlsx"
+    TYPE_DOC = "doc"
+    TYPE_DOCX = "docx"
+    TYPE_PPT = "ppt"
+    TYPE_PPTX = "pptx"
     TYPES = (TYPE_PDF, TYPE_PNG, TYPE_JPG, TYPE_GIF, TYPE_TIF,
              TYPE_TXT, TYPE_CSV, TYPE_MD, TYPE_ODS, TYPE_ODT,
-             TYPE_ODP)
+             TYPE_ODP, TYPE_XLS, TYPE_XLSX, TYPE_DOC, TYPE_DOCX,
+             TYPE_PPT, TYPE_PPTX)
 
     STORAGE_TYPE_UNENCRYPTED = "unencrypted"
     STORAGE_TYPE_GPG = "gpg"
@@ -371,53 +378,58 @@ class FileInfo:
             non_separated_word=r"([\w,. ]|([^\s]-))"
         )
     )
-
-    formats = "pdf|jpe?g|png|gif|tiff?|te?xt|md|csv|ods|odt|odp"
+    # TODO: When one is missing here no test fails! Write one
+    OFFICE_FORMATS = "ods|odt|odp|xlsx?|docx?|pptx?"
+    TEXT_FORMATS = "te?xt|md|csv"
+    IMAGE_FORMATS = "jpe?g|png|gif|tiff?"
+    FORMATS = "pdf|{}|{}|{}".format(
+        IMAGE_FORMATS, TEXT_FORMATS, OFFICE_FORMATS
+    )
     REGEXES = OrderedDict([
         ("created-correspondent-title-tags", re.compile(
             r"^(?P<created>\d\d\d\d\d\d\d\d(\d\d\d\d\d\d)?Z) - "
             r"(?P<correspondent>.*) - "
             r"(?P<title>.*) - "
             r"(?P<tags>[a-z0-9\-,]*)"
-            r"\.(?P<extension>{})$".format(formats),
+            r"\.(?P<extension>{})$".format(FORMATS),
             flags=re.IGNORECASE
         )),
         ("created-title-tags", re.compile(
             r"^(?P<created>\d\d\d\d\d\d\d\d(\d\d\d\d\d\d)?Z) - "
             r"(?P<title>.*) - "
             r"(?P<tags>[a-z0-9\-,]*)"
-            r"\.(?P<extension>{})$".format(formats),
+            r"\.(?P<extension>{})$".format(FORMATS),
             flags=re.IGNORECASE
         )),
         ("created-correspondent-title", re.compile(
             r"^(?P<created>\d\d\d\d\d\d\d\d(\d\d\d\d\d\d)?Z) - "
             r"(?P<correspondent>.*) - "
             r"(?P<title>.*)"
-            r"\.(?P<extension>{})$".format(formats),
+            r"\.(?P<extension>{})$".format(FORMATS),
             flags=re.IGNORECASE
         )),
         ("created-title", re.compile(
             r"^(?P<created>\d\d\d\d\d\d\d\d(\d\d\d\d\d\d)?Z) - "
             r"(?P<title>.*)"
-            r"\.(?P<extension>{})$".format(formats),
+            r"\.(?P<extension>{})$".format(FORMATS),
             flags=re.IGNORECASE
         )),
         ("correspondent-title-tags", re.compile(
             r"(?P<correspondent>.*) - "
             r"(?P<title>.*) - "
             r"(?P<tags>[a-z0-9\-,]*)"
-            r"\.(?P<extension>{})$".format(formats),
+            r"\.(?P<extension>{})$".format(FORMATS),
             flags=re.IGNORECASE
         )),
         ("correspondent-title", re.compile(
             r"(?P<correspondent>.*) - "
             r"(?P<title>.*)?"
-            r"\.(?P<extension>{})$".format(formats),
+            r"\.(?P<extension>{})$".format(FORMATS),
             flags=re.IGNORECASE
         )),
         ("title", re.compile(
             r"(?P<title>.*)"
-            r"\.(?P<extension>{})$".format(formats),
+            r"\.(?P<extension>{})$".format(FORMATS),
             flags=re.IGNORECASE
         ))
     ])

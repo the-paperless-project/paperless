@@ -12,7 +12,9 @@ from paperless_tesseract.parsers import strip_excess_whitespace
 
 class TikaDocumentParser(DocumentParser):
     """
-    This parser uses Apache Tika to try and get some text out of
+    This parser uses Apache-Tika to try and get some text out of office
+    formats, whether it's a open-office (ODS, ODT, ODP), or ms-office
+    format (XLS, XLSX, DOC, DOCX, PPT, PPTX)
     """
 
     CONVERT = settings.CONVERT_BINARY

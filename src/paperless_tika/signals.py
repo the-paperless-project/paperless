@@ -5,7 +5,7 @@ from .parsers import TikaDocumentParser
 
 class ConsumerDeclaration:
 
-    MATCHING_FILES = re.compile(r"^.*\.(ods|odt|odp)$")
+    MATCHING_FILES = re.compile(r"^.*\.(ods|odt|odp|xlsx?|docx?|pptx?)$")
 
     @classmethod
     def handle(cls, sender, **kwargs):

@@ -12,9 +12,9 @@ class SignalsTestCase(TestCase):
             "A document with a . in it", "Doc with -- in it"
         )
         suffixes = (
-            "ods", "odt", "odp",
-            "ODS", "ODT", "ODP",
-            "oDs", "oDt", "oDp"
+            "ods", "odt", "odp", "xls", "xlsx", "doc", "docx", "ppt", "pptx",
+            "ODS", "ODT", "ODP", "XLS", "XLSX", "DOC", "DOCX", "PPT", "PPTX",
+            "oDs", "oDt", "oDp", "xLs", "xLsX", "dOc", "dOcX", "pPt", "pPtX",
         )
 
         for prefix in prefixes:
