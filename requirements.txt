@@ -78,3 +78,4 @@ virtualenv==16.7.2
 wcwidth==0.1.7
 whitenoise==4.1.3
 zipp==0.5.2
+tika=="1.23"

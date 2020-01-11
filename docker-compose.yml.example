@@ -29,12 +29,22 @@ services:
             - PAPERLESS_OCR_LANGUAGES=
         command: ["gunicorn", "-b", "0.0.0.0:8000"]
 
+    tika-server:
+      image: logicalspark/docker-tikaserver:latest
+      healthcheck:
+          test: ["CMD", "curl" , "-f", "http://localhost:9998"]
+          interval: 30s
+          timeout: 10s
+          retries: 5
+
     consumer:
         build: ./
         # uncomment the following line to start automatically on system boot
         # restart: always
         depends_on:
             webserver:
+                condition: service_healthy
+            tika-server:
                 condition: service_healthy
         volumes:
             - data:/usr/src/paperless/data
@@ -49,6 +59,8 @@ services:
             # want to export your documents.
             # - /path/to/another/arbitrary/place:/export
         env_file: docker-compose.env
+        environment:
+            - TIKA_CLIENT_ONLY=True
         command: ["document_consumer"]
 
 volumes:

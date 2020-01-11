@@ -53,7 +53,16 @@ class FetchView(SessionOrBasicAuthMixin, DetailView):
             Document.TYPE_TIF: "image/tiff",
             Document.TYPE_CSV: "text/csv",
             Document.TYPE_MD:  "text/markdown",
-            Document.TYPE_TXT: "text/plain"
+            Document.TYPE_TXT: "text/plain",
+            Document.TYPE_ODS: "application/vnd.oasis.opendocument.spreadsheet",  # NOQA: E501
+            Document.TYPE_ODT: "application/vnd.oasis.opendocument.text",  # NOQA: E501
+            Document.TYPE_ODP: "application/vnd.oasis.opendocument.presentation",  # NOQA: E501
+            Document.TYPE_DOC: "application/msword",  # NOQA: E501
+            Document.TYPE_DOCX: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # NOQA: E501
+            Document.TYPE_XLS: "application/vnd.ms-excel",  # NOQA: E501
+            Document.TYPE_XLSX: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # NOQA: E501
+            Document.TYPE_PPT: "application/vnd.ms-powerpoint",  # NOQA: E501
+            Document.TYPE_PPTX: "application/vnd.openxmlformats-officedocument.presentationml.presentation",  # NOQA: E501
         }
 
         if self.kwargs["kind"] == "thumb":
