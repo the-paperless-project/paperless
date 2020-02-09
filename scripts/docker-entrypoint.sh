@@ -40,6 +40,8 @@ set_permissions() {
     done
     # Set permissions for application directory
     chown -Rh paperless:paperless /usr/src/paperless
+    chown -R paperless:paperless /consume
+    chmod -R 777 /consume
 }
 
 migrations() {

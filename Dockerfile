@@ -6,6 +6,7 @@ LABEL maintainer="The Paperless Project https://github.com/the-paperless-project
 
 # Copy Pipfiles file, init script and gunicorn.conf
 COPY Pipfile* /usr/src/paperless/
+RUN addgroup -S paperless && adduser -S paperless -G paperless
 COPY scripts/docker-entrypoint.sh /sbin/docker-entrypoint.sh
 COPY scripts/gunicorn.conf /usr/src/paperless/
 
@@ -48,8 +49,6 @@ RUN apk add --no-cache \
 # Create the consumption directory
     mkdir -p $PAPERLESS_CONSUMPTION_DIR && \
 # Create user
-    addgroup -g 1000 paperless && \
-    adduser -D -u 1000 -G paperless -h /usr/src/paperless paperless && \
     chown -Rh paperless:paperless /usr/src/paperless && \
     mkdir -p $PAPERLESS_EXPORT_DIR && \
 # Setup entrypoint
@@ -65,6 +64,6 @@ CMD ["--help"]
 COPY src/ /usr/src/paperless/src/
 COPY data/ /usr/src/paperless/data/
 COPY media/ /usr/src/paperless/media/
-
+RUN chown -R paperless:paperless /usr/src/paperless/
 # Collect static files
 RUN sudo -HEu paperless /usr/src/paperless/src/manage.py collectstatic --clear --no-input
