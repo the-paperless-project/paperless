@@ -19,6 +19,7 @@ from documents.actions import (
     remove_tag_from_selected,
     set_correspondent_on_selected
 )
+from paperless.utils import make_searchable
 
 from .models import Correspondent, Document, Log, Tag
 
@@ -173,7 +174,12 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
             "all": ("paperless.css",)
         }
 
-    search_fields = ("correspondent__name", "title", "content", "tags__name")
+    search_fields = (
+        "correspondent__name",
+        "searchable_title",
+        "searchable_content",
+        "tags__searchable_name",
+    )
     readonly_fields = ("added", "file_type", "storage_type",)
     list_display = ("title", "created", "added", "thumbnail", "correspondent",
                     "tags_")
@@ -337,6 +343,10 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
                                kind=kind, attributes=attributes, inside=inside)
 
         return format_html("<{} {}/>", kind, attributes)
+
+    def get_search_results(self, request, queryset, search_term):
+        search_term = make_searchable(search_term)
+        return super().get_search_results(request, queryset, search_term)
 
 
 class LogAdmin(CommonAdmin):
