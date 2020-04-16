@@ -87,20 +87,27 @@ class Consumer:
         """
         ignored_files = []
         files = []
-        for entry in os.scandir(self.consume):
-            if entry.is_file():
-                file = (entry.path, entry.stat().st_mtime)
-                if file in self._ignore:
-                    ignored_files.append(file)
+        try:
+            for entry in os.scandir(self.consume):
+                if entry.is_file():
+                    file = (entry.path, entry.stat().st_mtime)
+                    if file in self._ignore:
+                        ignored_files.append(file)
+                    else:
+                        files.append(file)
                 else:
-                    files.append(file)
-            else:
-                self.logger.warning(
-                    "Skipping %s as it is not a file",
-                    entry.path
-                )
+                    self.logger.warning(
+                        "Skipping %s as it is not a file",
+                        entry.path
+                    )
 
-        if not files:
+            if not files:
+                return
+        
+        except OSError:
+            self.logger.warning(
+                "Consume folder is unavailable."
+            )
             return
 
         # Set _ignore to only include files that still exist.
