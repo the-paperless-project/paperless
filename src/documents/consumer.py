@@ -103,7 +103,7 @@ class Consumer:
 
             if not files:
                 return
-        
+
         except OSError:
             self.logger.warning(
                 "Consume folder is unavailable."
