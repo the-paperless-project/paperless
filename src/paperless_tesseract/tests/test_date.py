@@ -182,3 +182,27 @@ class TestDate(TestCase):
         document = RasterisedDocumentParser("/dev/null")
         document.get_text()
         self.assertIsNone(document.get_date())
+
+    EXTRA = {
+        "123/04/2020/3423": None,
+        "-23/04/2020-foo": "2020 04 23",
+        "-23-04-2020-blurb": "2020 04 23",
+        # gets parsed as month: 23, day: 04, which is invalid
+        # "-2020-04-23-bar": "2020 04 23",
+        "12020-04-23-": None,
+        "-2020-04-234": None,
+    }
+
+    @mock.patch(MOCK_SCRATCH, SCRATCH)
+    def test_date_format_bulk(self):
+        timezone = tz.gettz(settings.TIME_ZONE)
+        for input, expected in self.EXTRA.items():
+            if expected is not None:
+                raw = [int(x) for x in expected.split()]
+                expected = datetime.datetime(*raw, tzinfo=timezone)
+
+            input_file = os.path.join(self.SAMPLE_FILES, "")
+            document = RasterisedDocumentParser(input_file)
+            document._text = input
+            message = "Test case {!r}".format(input)
+            self.assertEqual(document.get_date(), expected, msg=message)

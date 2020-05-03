@@ -21,11 +21,13 @@ from django.utils import timezone
 # - MONTH ZZZZ, with ZZZZ being 4 digits
 # - MONTH XX, ZZZZ with XX being 1 or 2 and ZZZZ being 4 digits
 DATE_REGEX = re.compile(
-    r'(\b|(?!=([_-])))([0-9]{1,2})[\.\/-]([0-9]{1,2})[\.\/-]([0-9]{4}|[0-9]{2})(\b|(?=([_-])))|' +  # NOQA: E501
-    r'(\b|(?!=([_-])))([0-9]{4}|[0-9]{2})[\.\/-]([0-9]{1,2})[\.\/-]([0-9]{1,2})(\b|(?=([_-])))|' +  # NOQA: E501
-    r'(\b|(?!=([_-])))([0-9]{1,2}[\. ]+[^ ]{3,9} ([0-9]{4}|[0-9]{2}))(\b|(?=([_-])))|' +  # NOQA: E501
-    r'(\b|(?!=([_-])))([^\W\d_]{3,9} [0-9]{1,2}, ([0-9]{4}))(\b|(?=([_-])))|' +
-    r'(\b|(?!=([_-])))([^\W\d_]{3,9} [0-9]{4})(\b|(?=([_-])))'
+    r'(?:\b|[_-])(' +
+    r'[0-9]{1,2}[./-][0-9]{1,2}[./-](?:[0-9]{4}|[0-9]{2})|' +
+    r'(?:[0-9]{4}|[0-9]{2})[./-][0-9]{1,2}[./-][0-9]{1,2}|' +
+    r'[0-9]{1,2}[. ]+[^ ]{3,9} (?:[0-9]{4}|[0-9]{2})|' +
+    r'[^\W\d_]{3,9} [0-9]{1,2}, [0-9]{4}|' +
+    r'[^\W\d_]{3,9} [0-9]{4}' +
+    r')(?:\b|[_-])'
 )
 
 
@@ -104,7 +106,7 @@ class DocumentParser:
         if self.FILENAME_DATE_ORDER:
             self.log("info", "Checking document title for date")
             for m in re.finditer(DATE_REGEX, title):
-                date_string = m.group(0)
+                date_string = m.group(1)
 
                 try:
                     date = __parser(date_string, self.FILENAME_DATE_ORDER)
@@ -130,7 +132,7 @@ class DocumentParser:
 
         # Iterate through all regex matches in text and try to parse the date
         for m in re.finditer(DATE_REGEX, text):
-            date_string = m.group(0)
+            date_string = m.group(1)
 
             try:
                 date = __parser(date_string, self.DATE_ORDER)
