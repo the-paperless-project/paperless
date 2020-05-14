@@ -1,8 +1,12 @@
 import re
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from uuid import uuid4
+import os
+import shutil
 from unittest import mock
 from tempfile import TemporaryDirectory
+from django.conf import settings
 
 from ..consumer import Consumer
 from ..models import FileInfo, Tag
@@ -10,6 +14,70 @@ from ..models import FileInfo, Tag
 
 class TestConsumer(TestCase):
     SAMPLE_FILES = os.path.join(os.path.dirname(__file__), "samples")
+    deletion_list = []
+
+    def add_to_deletion_list(self, dirname):
+        self.deletion_list.append(dirname)
+
+    def setUp(self):
+        storage = "/tmp/paperless-tests-{}".format(str(uuid4())[:8])
+        os.makedirs(os.path.join(storage, "documents", "originals"))
+        os.makedirs(os.path.join(storage, "documents", "thumbnails"))
+        storage_override = override_settings(MEDIA_ROOT=storage)
+        storage_override.enable()
+        self.add_to_deletion_list(storage)
+
+        tmpdir = "/tmp/paperless-tests-{}".format(str(uuid4())[:8])
+        tmpdir_override = override_settings(CONVERT_TMPDIR=tmpdir)
+        tmpdir_override.enable()
+        self.add_to_deletion_list(tmpdir)
+
+    def tearDown(self):
+        for dirname in self.deletion_list:
+            shutil.rmtree(dirname, ignore_errors=True)
+
+    @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/{title}")
+    def test_file_consumption(self):
+        with TemporaryDirectory() as tmpdir:
+            myConsumer = Consumer(consume=tmpdir)
+
+            # Put sample document into consumption folder
+            shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                            os.path.join(tmpdir, "letter.pdf"))
+
+            myConsumer.consume_new_files()
+
+            # Check if consumed file has been stored correctly
+            self.assertEqual(os.path.isfile(os.path.join(
+                settings.MEDIA_ROOT, "documents", "originals", "none",
+                "letter-0000001.pdf.gpg")), True)
+
+    @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/dummy")
+    def test_duplicate_file_consumption(self):
+        with TemporaryDirectory() as tmpdir:
+            myConsumer = Consumer(consume=tmpdir)
+
+            # Create documents and thumbnails
+            os.makedirs(os.path.join(
+                settings.MEDIA_ROOT, "documents", "originals"), exist_ok=True)
+            os.makedirs(os.path.join(
+                settings.MEDIA_ROOT, "documents", "thumbnails"), exist_ok=True)
+
+            # Put sample document into consumption folder
+            shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                            os.path.join(tmpdir, "letter.pdf"))
+            shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                            os.path.join(tmpdir, "letter2.pdf"))
+
+            myConsumer.consume_new_files()
+
+            # Check if consumed file has been stored correctly
+            self.assertEqual(os.path.isfile(os.path.join(
+                settings.MEDIA_ROOT, "documents", "originals", "none",
+                "dummy-0000001.pdf.gpg")), True)
+            self.assertEqual(os.path.isfile(os.path.join(
+                settings.MEDIA_ROOT, "documents", "originals", "none",
+                "dummy-0000002.pdf.gpg")), False)
 
     class DummyParser(object):
         pass
