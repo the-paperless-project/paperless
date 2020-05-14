@@ -286,6 +286,10 @@ class Document(models.Model):
         # Go up in the directory hierarchy and try to delete all directories
         root = os.path.normpath(Document.filename_to_path(subdirectory))
 
+        # Check if root really exists and return otherwise
+        if not os.path.isdir(root):
+            return None
+
         for filename in os.listdir(root):
             if filename.endswith(suffix):
                 return os.path.join(subdirectory, filename)
