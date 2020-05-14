@@ -9,6 +9,7 @@ from ..models import FileInfo, Tag
 
 
 class TestConsumer(TestCase):
+    SAMPLE_FILES = os.path.join(os.path.dirname(__file__), "samples")
 
     class DummyParser(object):
         pass
