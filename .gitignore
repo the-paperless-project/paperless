@@ -54,9 +54,6 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
-# PyBuilder
-target/
-
 # Stored PDFs
 media/documents/*.gpg
 media/documents/thumbnails/*
@@ -68,8 +65,11 @@ media/overrides.js
 db.sqlite3
 db.sqlite3-journal
 
-# PyCharm
+# IDE files
+target/
 .idea
+.ropeproject
+.vscode
 
 # Other stuff that doesn't belong
 .virtualenv
