@@ -108,7 +108,9 @@ su -c "cd /home/paperless ; git clone https://github.com/the-paperless-project/p
 
 # Install Pip Requirements
 apt-get -y install python3-pip python3-venv
+pip3 install pipenv
 cd /home/paperless/paperless
+pipenv lock -r > requirements.txt
 pip3 install -r requirements.txt
 
 # Take paperless.conf.example and set consumuption dir (ftp dir)

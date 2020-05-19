@@ -76,6 +76,7 @@ db.sqlite3-journal
 virtualenv
 docker-compose.yml
 docker-compose.env
+requirements.txt
 
 # Used for development
 scripts/import-for-development

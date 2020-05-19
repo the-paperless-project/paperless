@@ -32,8 +32,7 @@ For the purposes of simplicity, ``python`` and ``pip`` is used everywhere to
 refer to their Python3 versions.
 
 In addition to the above, there are a number of Python requirements, all of
-which are listed in a file called ``requirements.txt`` in the project root
-directory.
+which are listed in a file called ``Pipfile`` in the project root directory.
 
 If you're not working on a virtual environment (like Docker), you
 should probably be using a virtualenv, but that's your call.  The reasons why
@@ -71,11 +70,19 @@ dependencies is easy:
 
 .. code:: bash
 
-    $ pip install --user --requirement /path/to/paperless/requirements.txt
+    $ cd /path/to/paperless
+    $ pipenv lock -r > requirements.txt
+    $ pip install --user --requirement requirements.txt
 
 This will download and install all of the requirements into
 ``${HOME}/.local``.  Remember that your distribution may be using ``pip3`` as
 mentioned above.
+
+If you don't have Pipenv installed, then you can install it using ``pip``:
+
+.. code:: Bash
+
+    $ pip install --user pipenv
 
 
 .. _requirements-virtualenv:
@@ -83,17 +90,24 @@ mentioned above.
 Python-specific Requirements: Virtualenv
 ----------------------------------------
 
-Using a virtualenv for this is pretty straightforward: create a virtualenv,
-enter it, and install the requirements using the ``requirements.txt`` file:
+Using a virtualenv for Paperless is very easy, thanks to Pipenv. If you don't
+have Pipenv installed, then you can install it using ``pip``:
+
+.. code:: Bash
+
+    $ pip install --user pipenv
+
+With Pipenv available, it is trivial to create the virtual environment and
+install the requirements:
 
 .. code:: bash
 
-    $ virtualenv --python=/path/to/python3 /path/to/arbitrary/directory
-    $ . /path/to/arbitrary/directory/bin/activate
-    $ pip install  --requirement /path/to/paperless/requirements.txt
+    $ cd /path/to/paperless
+    $ pipenv --python 3
+    $ pipenv install
 
-Now you're ready to go.  Just remember to enter (activate) your virtualenv
-whenever you want to use Paperless.
+Now you're ready to go. Just remember to enter the virtual environment
+created by Pipenv using ``pipenv shell`` whenever you want to use Paperless.
 
 
 .. _requirements-documentation:
@@ -102,8 +116,8 @@ Documentation
 -------------
 
 As generation of the documentation is not required for the use of Paperless,
-dependencies for this process are not included in ``requirements.txt``.  If
-you'd like to generate your own docs locally, you'll need to:
+dependencies for this process are not included in ``Pipfile``. If you'd like
+to generate your own docs locally, you'll need to:
 
 .. code:: bash
 
