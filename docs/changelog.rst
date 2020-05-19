@@ -6,7 +6,7 @@ Changelog
 
 * `syntonym`_ submitted a pull request to catch IMAP connection errors `#475`_.
 * `Stéphane Brunner`_ added ``psycopg2`` to the Pipfile `#489`_.  He also fixed
-  a syntax error in ``docker-compose.yml.example`` `#488`_ and added [DjangoQL](https://github.com/ivelum/djangoql),
+  a syntax error in ``docker-compose.yml.example`` `#488`_ and added `DjangoQL <https://github.com/ivelum/djangoql>`_,
   which allows a litany of handy search functionality `#492`_.
 * `CkuT`_ and `JOKer`_ hacked out a simple, but super-helpful optimisation to
   how the thumbnails are served up, improving performance considerably `#481`_.
