@@ -7,26 +7,126 @@ before_install:
 sudo: false
 
 matrix:
-    include:        
+    include:
         - python: "3.5"
         - python: "3.6"
         - python: "3.7-dev"
-        - env:
-            - BUILD_DOCKER=1
-            # Variable to add to publish the Docker image:
-            # * DOCKER_USERNAME
-            # * DOCKER_PASSWORD, to be encrypted, use `travis encrypt DOCKER_PASSWORD=<password>`
+        - stage: build_docker
+          name: amd64 docker build
           services:
             - docker
           before_install:
             - true
           install:
             - true
-          script:
-            - docker build --tag=the-paperless-project/paperless .
           after_success:
             - true
-
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            - docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64 .
+            - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
+        - stage: build_docker
+          name: arm64v8 docker build
+          services:
+            - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            # travis_wait 60 tells travis to wait for up to 60 minutes - default is 20, which is too short
+            - travis_wait 60 docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8 .
+            - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8
+          arch: arm64
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
+        - stage: build_docker
+          name: arm32v7 docker build
+          services:
+            - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            # register binfmt stuff for qemu-static binaries so we can use userland-emulation
+            - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+            # replace the multi-arch reference with a specific, arm32v7 version. else docker will use the platform specific one,
+            # which is amd64.
+            - sed -i 's/FROM alpine:3.10/FROM alpine@sha256:2632d6288d34d7175021683f6e363fa7c0fa8866a565eb285e36e3b856545e82/g' Dockerfile
+            # travis_wait 60 tells travis to wait for up to 60 minutes - default is 20, which is too short
+            - travis_wait 60 docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7 .
+            - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
+        - stage: build_docker
+          name: arm32v6 docker build # arm32v6 f.e. old raspberry pi (1 and zero)
+          services:
+            - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            # register binfmt stuff for qemu-static binaries so we can use userland-emulation
+            - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+            # replace the multi-arch reference with a specific, arm32v6 version. else docker will use the platform specific one,
+            # which is amd64.
+            - sed -i 's/FROM alpine:3.10/FROM alpine@sha256:9afbfccb806687f6979661622f0c04dc534769e742465b107f84a830cbb8e77a/g' Dockerfile
+            # travis_wait 60 tells travis to wait for up to 60 minutes - default is 20, which is too short
+            - travis_wait 60 docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6 .
+            - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
+        - stage: publish_manifest
+          env:
+            - DOCKER_CLI_EXPERIMENTAL=enabled # required for manifest support
+          services:
+            - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            - docker manifest create ${DOCKER_REPO}:${TRAVIS_COMMIT} ${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6
+            - docker manifest annotate ${DOCKER_REPO}:${TRAVIS_COMMIT} ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6 --os linux --arch arm --variant v6
+            - docker manifest annotate ${DOCKER_REPO}:${TRAVIS_COMMIT} ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7 --os linux --arch arm --variant v7
+            - docker manifest annotate ${DOCKER_REPO}:${TRAVIS_COMMIT} ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8 --os linux --arch arm64 --variant v8
+            - docker manifest push --purge ${DOCKER_REPO}:${TRAVIS_COMMIT}
+            - |
+              if [ "${TRAVIS_BRANCH}" = "master" ]; then
+                echo "Master branch detected"
+                DOCKER_TAG="latest"
+              else
+                DOCKER_TAG=${TRAVIS_TAG}
+              fi
+            - |
+              if [ "${DOCKER_TAG}" != "" ]; then
+                echo "Create Tag ${DOCKER_TAG}"
+                docker manifest create ${DOCKER_REPO}:${DOCKER_TAG} ${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6
+                docker manifest annotate ${DOCKER_REPO}:${DOCKER_TAG} ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6 --os linux --arch arm --variant v6
+                docker manifest annotate ${DOCKER_REPO}:${DOCKER_TAG} ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7 --os linux --arch arm --variant v7
+                docker manifest annotate ${DOCKER_REPO}:${DOCKER_TAG} ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8 --os linux --arch arm64 --variant v8
+                docker manifest push --purge ${DOCKER_REPO}:${DOCKER_TAG}
+              else
+                echo "Not a tag and not on master, so not pushing tag/master specific manifest"
+              fi
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
 install:
     - pip install --upgrade pip pipenv sphinx
     - pipenv lock -r > requirements.txt
@@ -40,17 +140,3 @@ script:
 
 after_success:
   - coveralls
-
-deploy:
-  - provider: script
-    skip_cleanup: true
-    script: ci/deploy-docker
-    on:
-      tags: true
-      condition: '"${BUILD_DOCKER}" = 1'
-  - provider: script
-    skip_cleanup: true
-    script: ci/deploy-docker
-    on:
-      branch: master
-      condition: '"${BUILD_DOCKER}" = 1'
