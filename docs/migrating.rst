@@ -26,46 +26,9 @@ into an arbitrary directory.
 Restoring
 ---------
 
-Restoring your data is just as easy, since nearly all of your data exists either
-in the file names, or in the contents of the files themselves.  You just need to
-create an empty database (just follow the
-:ref:`installation instructions <setup-installation>` again) and then import the
-``tags.json`` file you created as part of your backup.  Lastly, copy your
-exported documents into the consumption directory and start up the consumer.
-
-.. code-block:: shell-session
-
-    $ cd /path/to/project
-    $ rm data/db.sqlite3  # Delete the database
-    $ cd src
-    $ ./manage.py migrate  # Create the database
-    $ ./manage.py createsuperuser
-    $ ./manage.py loaddata /path/to/arbitrary/place/tags.json
-    $ cp /path/to/exported/docs/* /path/to/consumption/dir/
-    $ ./manage.py document_consumer
-
-Importing your data if you are :ref:`using Docker <setup-installation-docker>`
-is almost as simple:
-
-.. code-block:: shell-session
-
-    # Stop and remove your current containers
-    $ docker-compose stop
-    $ docker-compose rm -f
-
-    # Recreate them, add the superuser
-    $ docker-compose up -d
-    $ docker-compose run --rm webserver createsuperuser
-
-    # Load the tags
-    $ cat /path/to/arbitrary/place/tags.json | docker-compose run --rm webserver loaddata_stdin -
-
-    # Load your exported documents into the consumption directory
-    # (How you do this highly depends on how you have set this up)
-    $ cp /path/to/exported/docs/* /path/to/mounted/consumption/dir/
-
-After loading the documents into the consumption directory the consumer will
-immediately start consuming the documents.
+Restoring your data is just as easy, simply create an empty database (just follow
+the :ref:`installation instructions <setup-installation>` again) and then use
+the :ref:`importer <utilities-importer>`.
 
 
 .. _migrating-updates:
