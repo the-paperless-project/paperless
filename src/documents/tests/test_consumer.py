@@ -1,12 +1,12 @@
 import re
-
-from django.test import TestCase, override_settings
-from uuid import uuid4
 import os
 import shutil
-from unittest import mock
-from tempfile import TemporaryDirectory
+
 from django.conf import settings
+from django.test import TestCase, override_settings
+from tempfile import TemporaryDirectory
+from unittest import mock
+from uuid import uuid4
 
 from ..consumer import Consumer
 from ..models import FileInfo, Tag
