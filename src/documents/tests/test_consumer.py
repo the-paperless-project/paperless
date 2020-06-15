@@ -6,7 +6,6 @@ from django.conf import settings
 from django.test import TestCase, override_settings
 from tempfile import TemporaryDirectory
 from unittest import mock
-from uuid import uuid4
 
 from ..consumer import Consumer
 from ..models import FileInfo, Tag
@@ -14,27 +13,23 @@ from ..models import FileInfo, Tag
 
 class TestConsumer(TestCase):
     SAMPLE_FILES = os.path.join(os.path.dirname(__file__), "samples")
-    deletion_list = []
-
-    def add_to_deletion_list(self, dirname):
-        self.deletion_list.append(dirname)
 
     def setUp(self):
-        storage = "/tmp/paperless-tests-{}".format(str(uuid4())[:8])
-        os.makedirs(os.path.join(storage, "documents", "originals"))
-        os.makedirs(os.path.join(storage, "documents", "thumbnails"))
-        storage_override = override_settings(MEDIA_ROOT=storage)
+        self.storage = TemporaryDirectory()
+        os.makedirs(os.path.join(self.storage.name, "documents", "originals"),
+                    exist_ok=True)
+        os.makedirs(os.path.join(self.storage.name, "documents", "thumbnails"),
+                    exist_ok=True)
+        storage_override = override_settings(MEDIA_ROOT=self.storage.name)
         storage_override.enable()
-        self.add_to_deletion_list(storage)
 
-        tmpdir = "/tmp/paperless-tests-{}".format(str(uuid4())[:8])
-        tmpdir_override = override_settings(CONVERT_TMPDIR=tmpdir)
+        self.tmpdir = TemporaryDirectory()
+        tmpdir_override = override_settings(CONVERT_TMPDIR=self.tmpdir.name)
         tmpdir_override.enable()
-        self.add_to_deletion_list(tmpdir)
 
     def tearDown(self):
-        for dirname in self.deletion_list:
-            shutil.rmtree(dirname, ignore_errors=True)
+        self.storage.cleanup()
+        self.tmpdir.cleanup()
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/{title}")
     def test_file_consumption(self):
