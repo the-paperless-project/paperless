@@ -27,52 +27,60 @@ class TestConsumer(TestCase):
         tmpdir_override = override_settings(CONVERT_TMPDIR=self.tmpdir.name)
         tmpdir_override.enable()
 
+        self.scratchdir = TemporaryDirectory()
+        scratchdir_override = override_settings(PAPERLESS_SCRATCH_DIR=self.scratchdir.name)
+        scratchdir_override.enable()
+
+        self.consumptiondir = TemporaryDirectory()
+        consumptiondir_override = override_settings(CONSUMPTION_DIR=self.consumptiondir.name)
+        consumptiondir_override.enable()
+
     def tearDown(self):
         self.storage.cleanup()
         self.tmpdir.cleanup()
+        self.scratchdir.cleanup()
+        self.consumptiondir.cleanup()
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/{title}")
     def test_file_consumption(self):
-        with TemporaryDirectory() as tmpdir:
-            myConsumer = Consumer(consume=tmpdir)
+        myConsumer = Consumer()
 
-            # Put sample document into consumption folder
-            shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
-                            os.path.join(tmpdir, "letter.pdf"))
+        # Put sample document into consumption folder
+        shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                        os.path.join(settings.CONSUMPTION_DIR, "letter.pdf"))
 
-            myConsumer.consume_new_files()
+        myConsumer.consume_new_files()
 
-            # Check if consumed file has been stored correctly
-            self.assertEqual(os.path.isfile(os.path.join(
-                settings.MEDIA_ROOT, "documents", "originals", "none",
-                "letter-0000001.pdf.gpg")), True)
+        # Check if consumed file has been stored correctly
+        self.assertEqual(os.path.isfile(os.path.join(
+            settings.MEDIA_ROOT, "documents", "originals", "none",
+            "letter-0000001.pdf.gpg")), True)
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/dummy")
     def test_duplicate_file_consumption(self):
-        with TemporaryDirectory() as tmpdir:
-            myConsumer = Consumer(consume=tmpdir)
+        myConsumer = Consumer()
 
-            # Create documents and thumbnails
-            os.makedirs(os.path.join(
-                settings.MEDIA_ROOT, "documents", "originals"), exist_ok=True)
-            os.makedirs(os.path.join(
-                settings.MEDIA_ROOT, "documents", "thumbnails"), exist_ok=True)
+        # Create documents and thumbnails
+        os.makedirs(os.path.join(
+            settings.MEDIA_ROOT, "documents", "originals"), exist_ok=True)
+        os.makedirs(os.path.join(
+            settings.MEDIA_ROOT, "documents", "thumbnails"), exist_ok=True)
 
-            # Put sample document into consumption folder
-            shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
-                            os.path.join(tmpdir, "letter.pdf"))
-            shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
-                            os.path.join(tmpdir, "letter2.pdf"))
+        # Put sample document into consumption folder
+        shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                        os.path.join(tmpdir, "letter.pdf"))
+        shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                        os.path.join(tmpdir, "letter2.pdf"))
 
-            myConsumer.consume_new_files()
+        myConsumer.consume_new_files()
 
-            # Check if consumed file has been stored correctly
-            self.assertEqual(os.path.isfile(os.path.join(
-                settings.MEDIA_ROOT, "documents", "originals", "none",
-                "dummy-0000001.pdf.gpg")), True)
-            self.assertEqual(os.path.isfile(os.path.join(
-                settings.MEDIA_ROOT, "documents", "originals", "none",
-                "dummy-0000002.pdf.gpg")), False)
+        # Check if consumed file has been stored correctly
+        self.assertEqual(os.path.isfile(os.path.join(
+            settings.MEDIA_ROOT, "documents", "originals", "none",
+            "dummy-0000001.pdf.gpg")), True)
+        self.assertEqual(os.path.isfile(os.path.join(
+            settings.MEDIA_ROOT, "documents", "originals", "none",
+            "dummy-0000002.pdf.gpg")), False)
 
     class DummyParser(object):
         pass
