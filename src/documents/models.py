@@ -283,7 +283,8 @@ class Document(models.Model):
         if self.storage_type == self.STORAGE_TYPE_GPG:
             suffix += ".gpg"
 
-        # Go up in the directory hierarchy and try to delete all directories
+        # Start with the (optinally) supplied subdirectory, go up in the
+        # directory hierarchy and try to find the file in question
         root = os.path.normpath(Document.filename_to_path(subdirectory))
 
         # Check if root really exists and return otherwise
