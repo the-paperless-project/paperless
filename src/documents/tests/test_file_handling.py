@@ -19,11 +19,12 @@ class TestDate(TestCase):
                     exist_ok=True)
         os.makedirs(os.path.join(self.storage.name, "documents", "thumbnails"),
                     exist_ok=True)
-        storage_override = override_settings(MEDIA_ROOT=self.storage.name)
-        storage_override.enable()
+        self.storage_override = override_settings(MEDIA_ROOT=self.storage.name)
+        self.storage_override.enable()
 
     def tearDown(self):
         self.storage.cleanup()
+        self.storage_override.disable()
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="")
     def test_source_filename(self):

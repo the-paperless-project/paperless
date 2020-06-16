@@ -20,28 +20,33 @@ class TestConsumer(TestCase):
                     exist_ok=True)
         os.makedirs(os.path.join(self.storage.name, "documents", "thumbnails"),
                     exist_ok=True)
-        storage_override = override_settings(MEDIA_ROOT=self.storage.name)
-        storage_override.enable()
+        self.storage_override = override_settings(MEDIA_ROOT=self.storage.name)
+        self.storage_override.enable()
 
         self.tmpdir = TemporaryDirectory()
-        tmpdir_override = override_settings(CONVERT_TMPDIR=self.tmpdir.name)
-        tmpdir_override.enable()
+        self.tmpdir_override = override_settings(
+                CONVERT_TMPDIR=self.tmpdir.name)
+        self.tmpdir_override.enable()
 
         self.scratchdir = TemporaryDirectory()
-        scratchdir_override = override_settings(
+        self.scratchdir_override = override_settings(
                 SCRATCH_DIR=self.scratchdir.name)
-        scratchdir_override.enable()
+        self.scratchdir_override.enable()
 
         self.consumptiondir = TemporaryDirectory()
-        consumptiondir_override = override_settings(
+        self.consumptiondir_override = override_settings(
                 CONSUMPTION_DIR=self.consumptiondir.name)
-        consumptiondir_override.enable()
+        self.consumptiondir_override.enable()
 
     def tearDown(self):
         self.storage.cleanup()
+        self.storage_override.disable()
         self.tmpdir.cleanup()
+        self.tmpdir_override.disable()
         self.scratchdir.cleanup()
+        self.scratchdir_override.disable()
         self.consumptiondir.cleanup()
+        self.consumptiondir_override.disable()
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/{title}")
     def test_file_consumption(self):
