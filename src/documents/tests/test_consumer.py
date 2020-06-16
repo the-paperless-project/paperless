@@ -28,11 +28,13 @@ class TestConsumer(TestCase):
         tmpdir_override.enable()
 
         self.scratchdir = TemporaryDirectory()
-        scratchdir_override = override_settings(PAPERLESS_SCRATCH_DIR=self.scratchdir.name)
+        scratchdir_override = override_settings(
+                SCRATCH_DIR=self.scratchdir.name)
         scratchdir_override.enable()
 
         self.consumptiondir = TemporaryDirectory()
-        consumptiondir_override = override_settings(CONSUMPTION_DIR=self.consumptiondir.name)
+        consumptiondir_override = override_settings(
+                CONSUMPTION_DIR=self.consumptiondir.name)
         consumptiondir_override.enable()
 
     def tearDown(self):
@@ -43,7 +45,8 @@ class TestConsumer(TestCase):
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/{title}")
     def test_file_consumption(self):
-        myConsumer = Consumer()
+        myConsumer = Consumer(consume=settings.CONSUMPTION_DIR,
+                              scratch=settings.SCRATCH_DIR)
 
         # Put sample document into consumption folder
         shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
@@ -58,7 +61,8 @@ class TestConsumer(TestCase):
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/dummy")
     def test_duplicate_file_consumption(self):
-        myConsumer = Consumer()
+        myConsumer = Consumer(consume=settings.CONSUMPTION_DIR,
+                              scratch=settings.SCRATCH_DIR)
 
         # Create documents and thumbnails
         os.makedirs(os.path.join(
@@ -68,9 +72,9 @@ class TestConsumer(TestCase):
 
         # Put sample document into consumption folder
         shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
-                        os.path.join(tmpdir, "letter.pdf"))
+                        os.path.join(settings.CONSUMPTION_DIR, "letter.pdf"))
         shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
-                        os.path.join(tmpdir, "letter2.pdf"))
+                        os.path.join(settings.CONSUMPTION_DIR, "letter2.pdf"))
 
         myConsumer.consume_new_files()
 
