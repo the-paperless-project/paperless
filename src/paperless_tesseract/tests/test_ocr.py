@@ -1,10 +1,11 @@
 import os
-from unittest import mock, skipIf
-
 import pyocr
-from django.test import TestCase
+
+from django.test import TestCase, override_settings
 from pyocr.libtesseract.tesseract_raw import \
     TesseractError as OtherTesseractError
+from tempfile import TemporaryDirectory
+from unittest import mock, skipIf
 
 from ..parsers import image_to_string, strip_excess_whitespace
 
@@ -31,6 +32,8 @@ class FakePyOcr(object):
         return [FakeTesseract]
 
 
+@override_settings(SCRATCH_DIR=os.path.join(
+                               os.path.dirname(__file__), "samples"))
 class TestOCR(TestCase):
 
     text_cases = [
@@ -45,7 +48,6 @@ class TestOCR(TestCase):
         )
     ]
 
-    SAMPLE_FILES = os.path.join(os.path.dirname(__file__), "samples")
     TESSERACT_INSTALLED = bool(pyocr.get_available_tools())
 
     def test_strip_excess_whitespace(self):
@@ -62,10 +64,6 @@ class TestOCR(TestCase):
             )
 
     @skipIf(not TESSERACT_INSTALLED, "Tesseract not installed. Skipping")
-    @mock.patch(
-        "paperless_tesseract.parsers.RasterisedDocumentParser.SCRATCH",
-        SAMPLE_FILES
-    )
     @mock.patch("paperless_tesseract.parsers.pyocr", FakePyOcr)
     def test_image_to_string_with_text_free_page(self):
         """
