@@ -64,12 +64,6 @@ class TestConsumer(TestCase):
         myConsumer = Consumer(consume=settings.CONSUMPTION_DIR,
                               scratch=settings.SCRATCH_DIR)
 
-        # Create documents and thumbnails
-        os.makedirs(os.path.join(
-            settings.MEDIA_ROOT, "documents", "originals"), exist_ok=True)
-        os.makedirs(os.path.join(
-            settings.MEDIA_ROOT, "documents", "thumbnails"), exist_ok=True)
-
         # Put sample document into consumption folder
         shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
                         os.path.join(settings.CONSUMPTION_DIR, "letter.pdf"))
