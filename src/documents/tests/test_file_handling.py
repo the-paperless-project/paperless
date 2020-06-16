@@ -59,7 +59,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -71,7 +70,6 @@ class TestDate(TestCase):
 
         # Enable encryption and check again
         document.storage_type = Document.STORAGE_TYPE_GPG
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf.gpg")
         document.save()
@@ -103,7 +101,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -138,7 +135,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -170,7 +166,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -206,7 +201,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "demo-0000001.pdf")
         document.create_source_directory()
@@ -227,7 +221,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "demo-0000001.pdf")
         document.create_source_directory()
@@ -248,7 +241,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -268,7 +260,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "demo-0000001.pdf")
         document.create_source_directory()
@@ -284,7 +275,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -300,7 +290,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -316,7 +305,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -333,7 +321,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none/none-0000001.pdf")
         document.create_source_directory()
@@ -373,7 +360,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -420,7 +406,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf.gpg")
         document.create_source_directory()
@@ -506,7 +491,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
