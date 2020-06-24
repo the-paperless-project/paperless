@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.10
 
 LABEL maintainer="The Paperless Project https://github.com/the-paperless-project/paperless" \
       contributors="Guy Addadi <addadi@gmail.com>, Pit Kleyersburg <pitkley@googlemail.com>, \
@@ -27,8 +27,12 @@ RUN apk add --no-cache \
       shadow \
       sudo \
       tesseract-ocr \
-			tzdata \
-      unpaper && \
+      tzdata \
+      tesseract-ocr-data-deu \
+      unpaper \
+      libxslt \
+      qpdf \
+      libxml2 && \
     apk add --no-cache --virtual .build-dependencies \
       g++ \
       gcc \
@@ -37,13 +41,19 @@ RUN apk add --no-cache \
       poppler-dev \
       postgresql-dev \
       python3-dev \
-      zlib-dev && \
+      zlib-dev \
+      libxslt-dev \
+      libxml2-dev \
+      qpdf-dev
+
 # Install python dependencies
-    python3 -m ensurepip && \
+RUN python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
-    cd /usr/src/paperless && \
-    pip3 install --upgrade pip pipenv && \
-    pipenv install --system --deploy && \
+    pip3 install --no-cache --upgrade pip pipenv setuptools wheel && \
+    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi
+
+RUN cd /usr/src/paperless && \
+    pipenv install --skip-lock --system && \
 # Remove build dependencies
     apk del .build-dependencies && \
 # Create the consumption directory

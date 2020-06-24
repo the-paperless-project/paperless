@@ -22,6 +22,8 @@ if os.path.exists("/etc/paperless.conf"):
     load_dotenv("/etc/paperless.conf")
 elif os.path.exists("/usr/local/etc/paperless.conf"):
     load_dotenv("/usr/local/etc/paperless.conf")
+elif os.path.exists("./paperless.conf"):
+    load_dotenv("./paperless.conf")
 
 
 def __get_boolean(key, default="NO"):
@@ -80,6 +82,7 @@ INSTALLED_APPS = [
     "reminders.apps.RemindersConfig",
     "paperless_tesseract.apps.PaperlessTesseractConfig",
     "paperless_text.apps.PaperlessTextConfig",
+    "paperless_ocrmypdf.apps.PaperlessOcrmypdfConfig",
 
     "django.contrib.admin",
 
@@ -103,6 +106,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+SILENCED_SYSTEM_CHECKS = [
+    'admin.E408',
 ]
 
 # Enable whitenoise compression and caching

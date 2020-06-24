@@ -38,6 +38,7 @@ psycopg2 = "*"
 djangoql = "*"
 whitenoise = "*"
 brotli = "*"
+ocrmypdf = "*"
 
 [dev-packages]
 ipython = "*"

@@ -45,10 +45,16 @@ class DocumentParser:
     OPTIPNG = settings.OPTIPNG_BINARY
 
     def __init__(self, path):
+        """ original document """
         self.document_path = path
+        """ maybe transformed document, which is imported """
+        self.archive_path = path
         self.tempdir = tempfile.mkdtemp(prefix="paperless-", dir=self.SCRATCH)
         self.logger = logging.getLogger(__name__)
         self.logging_group = None
+
+    def get_archive_docname(self):
+        return self.archive_path
 
     def get_thumbnail(self):
         """

@@ -128,7 +128,15 @@ class Consumer:
 
         doc = file
 
-        if self._is_duplicate(doc):
+        """
+        We calculate the checksum for the unmodified file!
+        So we can change the format while processing and
+        still can detect duplicates
+        """
+        with open(doc, "rb") as f:
+            checksum = hashlib.md5(f.read()).hexdigest()
+
+        if self._is_duplicate(checksum):
             self.log(
                 "info",
                 "Skipping {} as it appears to be a duplicate".format(doc)
@@ -154,13 +162,12 @@ class Consumer:
         parsed_document = parser_class(doc)
 
         try:
-            thumbnail = parsed_document.get_optimised_thumbnail()
-            date = parsed_document.get_date()
             document = self._store(
                 parsed_document.get_text(),
-                doc,
-                thumbnail,
-                date
+                parsed_document.get_archive_docname(),
+                parsed_document.get_optimised_thumbnail(),
+                parsed_document.get_date(),
+                checksum
             )
         except ParseError as e:
             self.log("error", "PARSE FAILURE for {}: {}".format(doc, e))
@@ -207,7 +214,7 @@ class Consumer:
         return sorted(
             options, key=lambda _: _["weight"], reverse=True)[0]["parser"]
 
-    def _store(self, text, doc, thumbnail, date):
+    def _store(self, text, doc, thumbnail, date, checksum):
 
         file_info = FileInfo.from_path(doc)
 
@@ -224,7 +231,7 @@ class Consumer:
                 title=file_info.title,
                 content=text,
                 file_type=file_info.extension,
-                checksum=hashlib.md5(f.read()).hexdigest(),
+                checksum=checksum,
                 created=created,
                 modified=created,
                 storage_type=self.storage_type
@@ -260,7 +267,5 @@ class Consumer:
         os.unlink(doc)
 
     @staticmethod
-    def _is_duplicate(doc):
-        with open(doc, "rb") as f:
-            checksum = hashlib.md5(f.read()).hexdigest()
+    def _is_duplicate(checksum):
         return Document.objects.filter(checksum=checksum).exists()
