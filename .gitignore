@@ -85,3 +85,6 @@ scripts/nuke
 ./static/
 
 .DS*
+
+# consume
+consume/
