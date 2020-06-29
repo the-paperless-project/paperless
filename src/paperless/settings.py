@@ -344,3 +344,7 @@ PAPERLESS_RECENT_CORRESPONDENT_YEARS = int(os.getenv(
 
 # Specify the filename format for out files
 PAPERLESS_FILENAME_FORMAT = os.getenv("PAPERLESS_FILENAME_FORMAT")
+
+# if True, the consumer moves the files in subdirs after processing
+# if False, the consumer just deletes the successfully processed file (default)
+CONSUMER_MOVES = __get_boolean("PAPERLESS_CONSUMER_MOVES")

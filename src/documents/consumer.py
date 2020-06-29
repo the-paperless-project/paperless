@@ -6,6 +6,7 @@ import os
 import re
 import time
 import uuid
+import shutil
 
 from operator import itemgetter
 from django.conf import settings
@@ -40,7 +41,8 @@ class Consumer:
     FILES_MIN_UNMODIFIED_DURATION = 0.5
 
     def __init__(self, consume=settings.CONSUMPTION_DIR,
-                 scratch=settings.SCRATCH_DIR):
+                 scratch=settings.SCRATCH_DIR,
+                 move=settings.CONSUMER_MOVES):
 
         self.logger = logging.getLogger(__name__)
         self.logging_group = None
@@ -48,6 +50,11 @@ class Consumer:
         self._ignore = []
         self.consume = consume
         self.scratch = scratch
+        self.move = move
+
+        self.processed = os.path.join(consume, "processed")
+        self.ignored = os.path.join(consume, "ignored")
+        self.duplicate = os.path.join(consume, "duplicate")
 
         os.makedirs(self.scratch, exist_ok=True)
 
@@ -64,6 +71,11 @@ class Consumer:
         if not os.path.exists(self.consume):
             raise ConsumerError(
                 "Consumption directory {} does not exist".format(self.consume))
+
+        if self.move:
+            os.makedirs(self.processed, exist_ok=True)
+            os.makedirs(self.ignored, exist_ok=True)
+            os.makedirs(self.duplicate, exist_ok=True)
 
         self.parsers = []
         for response in document_consumer_declaration.send(self):
@@ -85,20 +97,33 @@ class Consumer:
         Find non-ignored files in consumption dir and consume them if they have
         been unmodified for FILES_MIN_UNMODIFIED_DURATION.
         """
+
+        """ ignore all dot-files """
+        IGNORED_FILES = re.compile(r"^\..*$")
+
         ignored_files = []
         files = []
         for entry in os.scandir(self.consume):
             if entry.is_file():
+                if IGNORED_FILES.match(entry.name):
+                    continue
+
                 file = (entry.path, entry.stat().st_mtime)
                 if file in self._ignore:
                     ignored_files.append(file)
+                    if self.move:
+                        self.logger.info("Moving '%s' to '%s': file is ignored.", entry.path, self.ignored)
+                        self._safe_move(entry.path, self.ignored)
                 else:
                     files.append(file)
             else:
-                self.logger.warning(
-                    "Skipping %s as it is not a file",
-                    entry.path
-                )
+                if not (entry.path == self.processed or
+                        entry.path == self.ignored or
+                        entry.path == self.duplicate):
+                    self.logger.warning(
+                        "Skipping %s as it is not a file",
+                        entry.path
+                    )
 
         if not files:
             return
@@ -141,6 +166,11 @@ class Consumer:
                 "info",
                 "Skipping {} as it appears to be a duplicate".format(doc)
             )
+
+            if self.move:
+                self.logger.info("Moving '%s' to '%s': file is duplicate.", doc, self.duplicate)
+                self._safe_move(doc, self.duplicate)
+
             return False
 
         parser_class = self._get_parser_class(doc)
@@ -175,7 +205,6 @@ class Consumer:
             return False
         else:
             parsed_document.cleanup()
-            self._cleanup_doc(doc)
 
             self.log(
                 "info",
@@ -187,7 +216,8 @@ class Consumer:
                 document=document,
                 logging_group=self.logging_group
             )
-            return True
+            
+            return self._cleanup_doc(doc)
 
     def _get_parser_class(self, doc):
         """
@@ -263,9 +293,34 @@ class Consumer:
                 write_file.write(GnuPG.encrypted(read_file))
 
     def _cleanup_doc(self, doc):
-        self.log("debug", "Deleting document {}".format(doc))
-        os.unlink(doc)
+        if self.move:
+            self.log("debug", "Moving document {} to {}".format(doc, self.processed))
+            return self._safe_move(doc, self.processed)
+        else:
+            self.log("debug", "Deleting document {}".format(doc))
+            try:
+                os.unlink(doc)
+            except:
+                return False
+            else:
+                return True    
 
     @staticmethod
     def _is_duplicate(checksum):
         return Document.objects.filter(checksum=checksum).exists()
+
+    def _safe_move(self, src, dst):
+        try:
+            shutil.copy2(src, dst, follow_symlinks=False)
+            os.unlink(src)
+        except IOError as e:
+            self.log("info", "Unable to move file {} to {} : {}".format(src, dst, e))
+            return False
+        except PermissionError as e:
+            self.log("info", "{}".format(e))
+            return False
+        except:
+            self.log("info", "Unknown error when moving file {}".format(src))
+            return False    
+        else:
+            return True
