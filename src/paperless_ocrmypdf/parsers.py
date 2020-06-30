@@ -97,7 +97,7 @@ class PdfDocumentParser(DocumentParser):
             self._ocr(self.document_path)
             self._text = get_text_from_pdf(self.archive_path)
             return self._text
-        except OCRError as e:
+        except ParseError as e:
             raise ParseError(e)
 
     def _ocr(self, path):
@@ -117,9 +117,8 @@ class PdfDocumentParser(DocumentParser):
                          progress_bar=False,
                          image_dpi=300)
             self.archive_path = out_path
-        except OCRError as e:
-            raise ParseError(e)
-
+        except:
+            raise ParseError("Ocrmypdf failed for {}".format(self.document_path))
 
 def run_convert(*args):
 
