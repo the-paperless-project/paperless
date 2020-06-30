@@ -48,6 +48,7 @@ class Consumer:
         self.logging_group = None
 
         self._ignore = []
+        self._files = []
         self.consume = consume
         self.scratch = scratch
         self.move = move
@@ -55,6 +56,9 @@ class Consumer:
         self.processed = os.path.join(consume, "processed")
         self.ignored = os.path.join(consume, "ignored")
         self.duplicate = os.path.join(consume, "duplicate")
+
+        """ ignore all dot-files """
+        self.ABSOLUTELY_IGNORED_FILES = re.compile(r"^\..*$")
 
         os.makedirs(self.scratch, exist_ok=True)
 
@@ -95,58 +99,63 @@ class Consumer:
     def consume_new_files(self):
         """
         Find non-ignored files in consumption dir and consume them if they have
-        been unmodified for FILES_MIN_UNMODIFIED_DURATION.
+        been constant in size for FILES_MIN_UNMODIFIED_DURATION.
         """
-
-        """ ignore all dot-files """
-        IGNORED_FILES = re.compile(r"^\..*$")
-
         ignored_files = []
-        files = []
+        candidate_files = []
+        remaining_files = []
+
         for entry in os.scandir(self.consume):
-            if entry.is_file():
-                if IGNORED_FILES.match(entry.name):
-                    continue
+            # Silently skip well-known names without warning
+            if (entry.path == self.processed or \
+                entry.path == self.ignored or \
+                entry.path == self.duplicate):
+                continue
 
-                file = (entry.path, entry.stat().st_mtime)
-                if file in self._ignore:
-                    ignored_files.append(file)
-                    if self.move:
-                        self.logger.info("Moving '%s' to '%s': file is ignored.", entry.path, self.ignored)
-                        self._safe_move(entry.path, self.ignored)
-                else:
-                    files.append(file)
+            if not entry.is_file():
+                self.logger.warning("Skipping {} as it is not a file".format(entry.path))
+                continue
+            
+            if self.ABSOLUTELY_IGNORED_FILES.match(entry.name):
+                continue
+
+            file = (entry.path, os.path.getmtime(entry.path), os.path.getsize(entry.path))
+            
+            if file in self._ignore:
+                ignored_files.append(file)
+                if self.move:
+                    self.logger.info("Moving '%s' to '%s': file is ignored.", entry.path, self.ignored)
+                    self._safe_move(entry.path, self.ignored)
+            elif file in self._files: 
+                # this means no changes in name, mtime and size from last check
+                candidate_files.append(file)
             else:
-                if not (entry.path == self.processed or
-                        entry.path == self.ignored or
-                        entry.path == self.duplicate):
-                    self.logger.warning(
-                        "Skipping %s as it is not a file",
-                        entry.path
-                    )
+                # file was changed or is new compared to last run
+                self.logger.info("New or changing file: {}".format(entry.path))
+                remaining_files.append(file)
 
-        if not files:
-            return
-
-        # Set _ignore to only include files that still exist.
+        # Set _ignore and _files to only include files that still exist.
         # This keeps it from growing indefinitely.
         self._ignore[:] = ignored_files
+        self._files[:] = remaining_files
 
-        files_old_to_new = sorted(files, key=itemgetter(1))
+        candidate_files.sort(key=itemgetter(1))
 
-        time.sleep(self.FILES_MIN_UNMODIFIED_DURATION)
-
-        for file, mtime in files_old_to_new:
-            if mtime == os.path.getmtime(file):
-                # File has not been modified and can be consumed
-                if not self.try_consume_file(file):
-                    self._ignore.append((file, mtime))
+        for file in candidate_files:
+            self.logger.info("Candidate file: {}, {} Byte".format(file[0], file[2]))
+            if not self.try_consume_file(file[0]):
+                self._ignore.append(file)
 
     @transaction.atomic
     def try_consume_file(self, file):
         """
         Return True if file was consumed
         """
+
+        # function is called directly via inotify watcher, so this
+        # check is needed here again       
+        if self.ABSOLUTELY_IGNORED_FILES.match(file):
+            return False
 
         if not re.match(FileInfo.REGEXES["title"], file):
             return False
@@ -162,10 +171,7 @@ class Consumer:
             checksum = hashlib.md5(f.read()).hexdigest()
 
         if self._is_duplicate(checksum):
-            self.log(
-                "info",
-                "Skipping {} as it appears to be a duplicate".format(doc)
-            )
+            self.logger.info("Skipping {} as it appears to be a duplicate".format(doc))
 
             if self.move:
                 self.logger.info("Moving '%s' to '%s': file is duplicate.", doc, self.duplicate)
@@ -175,13 +181,12 @@ class Consumer:
 
         parser_class = self._get_parser_class(doc)
         if not parser_class:
-            self.log(
-                "error", "No parsers could be found for {}".format(doc))
+            self.logger.error("No parsers could be found for {}".format(doc))
             return False
 
         self.logging_group = uuid.uuid4()
 
-        self.log("info", "Consuming {}".format(doc))
+        self.logger.info("Consuming {}".format(doc))
 
         document_consumption_started.send(
             sender=self.__class__,
@@ -200,16 +205,13 @@ class Consumer:
                 checksum
             )
         except ParseError as e:
-            self.log("error", "PARSE FAILURE for {}: {}".format(doc, e))
+            self.logger.error("PARSE FAILURE for {}: {}".format(doc, e))
             parsed_document.cleanup()
             return False
         else:
             parsed_document.cleanup()
 
-            self.log(
-                "info",
-                "Document {} consumption finished".format(document)
-            )
+            self.logger.info("Document {} consumption finished".format(document))
 
             document_consumption_finished.send(
                 sender=self.__class__,
