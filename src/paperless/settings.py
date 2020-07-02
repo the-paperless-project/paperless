@@ -196,7 +196,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = os.getenv("PAPERLESS_LANGUAGE_CODE", "en-us")
 
 TIME_ZONE = os.getenv("PAPERLESS_TIME_ZONE", "UTC")
 
