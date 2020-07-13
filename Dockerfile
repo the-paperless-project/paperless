@@ -22,7 +22,8 @@ RUN apk add --no-cache \
       unpaper \
       libxslt \
       qpdf \
-      libxml2 && \
+      libxml2 \
+      gettext && \
     apk add --no-cache --virtual .build-dependencies \
       g++ \
       gcc \
@@ -50,7 +51,7 @@ ENV PAPERLESS_EXPORT_DIR=/export \
 COPY Pipfile* /usr/src/paperless/
 
 RUN cd /usr/src/paperless && \
-    pipenv install --skip-lock --system && \
+    pipenv install --deploy --system && \
 # Remove build dependencies
     apk del .build-dependencies
 
@@ -86,6 +87,10 @@ CMD ["--help"]
 COPY src/ /usr/src/paperless/src/
 COPY data/ /usr/src/paperless/data/
 COPY media/ /usr/src/paperless/media/
+COPY locale/ /usr/src/paperless/locale/
+
+RUN cd /usr/src/paperless && \
+    pipenv run django-admin compilemessages
 
 # Collect static files
 RUN sudo -HEu paperless /usr/src/paperless/src/manage.py collectstatic --clear --no-input
