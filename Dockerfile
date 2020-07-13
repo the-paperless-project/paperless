@@ -87,7 +87,6 @@ CMD ["--help"]
 COPY src/ /usr/src/paperless/src/
 COPY data/ /usr/src/paperless/data/
 COPY media/ /usr/src/paperless/media/
-COPY locale/ /usr/src/paperless/locale/
 
 RUN cd /usr/src/paperless && \
     pipenv run django-admin compilemessages

@@ -13,6 +13,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.translation import ugettext_lazy as _
 from fuzzywuzzy import fuzz
 from collections import defaultdict
 
@@ -42,7 +43,12 @@ class MatchingModel(models.Model):
     name = models.CharField(max_length=128, unique=True)
     slug = models.SlugField(blank=True, editable=False)
 
-    match = models.CharField(max_length=256, blank=True)
+    match = models.CharField(
+        max_length=256,
+        blank=True,
+        verbose_name=_('match')
+    )
+
     matching_algorithm = models.PositiveIntegerField(
         choices=MATCHING_ALGORITHMS,
         default=MATCH_ANY,
@@ -58,10 +64,14 @@ class MatchingModel(models.Model):
             "match\" looks for words or phrases that are mostly—but not "
             "exactly—the same, which can be useful for matching against "
             "documents containg imperfections that foil accurate OCR."
-        )
+        ),
+        verbose_name=_('matching algorithm')
     )
 
-    is_insensitive = models.BooleanField(default=True)
+    is_insensitive = models.BooleanField(
+        default=True,
+        verbose_name=_('is_sensitive')
+    )
 
     class Meta:
         abstract = True
@@ -163,6 +173,8 @@ class Correspondent(MatchingModel):
 
     class Meta:
         ordering = ("name",)
+        verbose_name = _('correspondent')
+        verbose_name_plural = _('correspondents')
 
 
 class Tag(MatchingModel):
@@ -183,8 +195,15 @@ class Tag(MatchingModel):
         (13, "#cccccc")
     )
 
-    colour = models.PositiveIntegerField(choices=COLOURS, default=1)
+    colour = models.PositiveIntegerField(
+        choices=COLOURS,
+        default=1,
+        verbose_name=_('colour')
+    )
 
+    class Meta:
+        verbose_name = _('tag')
+        verbose_name_plural = _('tags')
 
 class Document(models.Model):
 
@@ -211,26 +230,33 @@ class Document(models.Model):
         blank=True,
         null=True,
         related_name="documents",
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        verbose_name=_('correspondent')
     )
 
-    title = models.CharField(max_length=128, blank=True, db_index=True)
+    title = models.CharField(max_length=128, blank=True, db_index=True, verbose_name=_('title'))
 
     content = models.TextField(
         db_index=True,
         blank=True,
         help_text="The raw, text-only data of the document.  This field is "
-                  "primarily used for searching."
+                  "primarily used for searching.",
+        verbose_name=_('content')          
     )
 
     file_type = models.CharField(
         max_length=4,
         editable=False,
-        choices=tuple([(t, t.upper()) for t in TYPES])
+        choices=tuple([(t, t.upper()) for t in TYPES]),
+        verbose_name=_('filetype')
     )
 
     tags = models.ManyToManyField(
-        Tag, related_name="documents", blank=True)
+        Tag, 
+        related_name="documents", 
+        blank=True,
+        verbose_name = _('tags')
+    )
 
     checksum = models.CharField(
         max_length=32,
@@ -238,34 +264,50 @@ class Document(models.Model):
         unique=True,
         help_text="The checksum of the original document (before it was "
                   "encrypted).  We use this to prevent duplicate document "
-                  "imports."
+                  "imports.",
+        verbose_name=_('checksum')
     )
 
     created = models.DateTimeField(
-        default=timezone.now, db_index=True)
+        default=timezone.now,
+        db_index=True,
+        verbose_name=_('documentcreated')
+    )
+    
     modified = models.DateTimeField(
-        auto_now=True, editable=False, db_index=True)
+        auto_now=True,
+        editable=False,
+        db_index=True,
+        verbose_name=_('modified')
+    )
 
     storage_type = models.CharField(
         max_length=11,
         choices=STORAGE_TYPES,
         default=STORAGE_TYPE_UNENCRYPTED,
-        editable=False
+        editable=False,
+        verbose_name=_('storagetype')
     )
 
     added = models.DateTimeField(
-        default=timezone.now, editable=False, db_index=True)
+        default=timezone.now,
+        editable=False,
+        db_index=True,
+        verbose_name=_('added'))
 
     filename = models.FilePathField(
         max_length=256,
         editable=False,
         default=None,
         null=True,
-        help_text="Current filename in storage"
+        help_text="Current filename in storage",
+        verbose_name=_('filename')
     )
 
     class Meta:
         ordering = ("correspondent", "title")
+        verbose_name = _('document')
+        verbose_name_plural = _('documents')
 
     def __str__(self):
         created = self.created.strftime("%Y%m%d%H%M%S")
@@ -554,23 +596,39 @@ def delete_files(sender, instance, **kwargs):
 class Log(models.Model):
 
     LEVELS = (
-        (logging.DEBUG, "Debugging"),
-        (logging.INFO, "Informational"),
-        (logging.WARNING, "Warning"),
-        (logging.ERROR, "Error"),
-        (logging.CRITICAL, "Critical"),
+        (logging.DEBUG, _("Debugging")),
+        (logging.INFO, _("Informational")),
+        (logging.WARNING, _("Warning")),
+        (logging.ERROR, _("Error")),
+        (logging.CRITICAL, _("Critical")),
     )
 
     group = models.UUIDField(blank=True)
-    message = models.TextField()
-    level = models.PositiveIntegerField(choices=LEVELS, default=logging.INFO)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+    
+    message = models.TextField(verbose_name=_('message'))
+    
+    level = models.PositiveIntegerField(
+        choices=LEVELS,
+        default=logging.INFO,
+        verbose_name=_('level')
+    )
+
+    created = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('created')
+    )
+
+    modified = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('modified')
+    )
 
     objects = LogManager()
 
     class Meta:
         ordering = ("-modified",)
+        verbose_name = _('log')
+        verbose_name_plural = _('logs')
 
     def __str__(self):
         return self.message

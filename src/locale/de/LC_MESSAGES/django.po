@@ -1,0 +1,231 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-15 15:57+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: documents/admin.py:145 documents/admin.py:189
+msgid "document_count"
+msgstr "Anzahl der Dokumente"
+
+#: documents/admin.py:150
+msgid "last_correspondence"
+msgstr "Letzter Kontakt"
+
+#: documents/admin.py:163
+msgid "Currently known correspondents were applied."
+msgstr "Absender wurden aktualisiert."
+
+#: documents/admin.py:202
+msgid "Currently known tags were applied."
+msgstr "Derzeit bekannte Schlüsselwörter wurden angewendet."
+
+#: documents/models.py:49
+msgid "match"
+msgstr "Suchwörter"
+
+#: documents/models.py:68
+msgid "matching algorithm"
+msgstr "Suchalgorithmus"
+
+#: documents/models.py:73
+msgid "is_sensitive"
+msgstr "Unterscheidung GROSS/klein"
+
+#: documents/models.py:176 documents/models.py:234
+msgid "correspondent"
+msgstr "Absender"
+
+#: documents/models.py:177
+msgid "correspondents"
+msgstr "Absender"
+
+#: documents/models.py:201
+msgid "colour"
+msgstr "Farbe"
+
+#: documents/models.py:205
+msgid "tag"
+msgstr "Schlüsselwort"
+
+#: documents/models.py:206 documents/models.py:258
+msgid "tags"
+msgstr "Schlüsselwörter"
+
+#: documents/models.py:237
+msgid "title"
+msgstr "Titel"
+
+#: documents/models.py:244
+msgid "content"
+msgstr "Inhalt"
+
+#: documents/models.py:251
+msgid "filetype"
+msgstr "Dateityp"
+
+#: documents/models.py:268
+msgid "checksum"
+msgstr "Prüfsumme"
+
+#: documents/models.py:274
+msgid "documentcreated"
+msgstr "Datum des Dokuments"
+
+#: documents/models.py:281 documents/models.py:623
+msgid "modified"
+msgstr "Verändert"
+
+#: documents/models.py:289
+msgid "storagetype"
+msgstr "Speicherart"
+
+#: documents/models.py:296
+msgid "added"
+msgstr "Hinzugefügt"
+
+#: documents/models.py:304
+msgid "filename"
+msgstr "Dateipfad"
+
+#: documents/models.py:309 reminders/models.py:10
+msgid "document"
+msgstr "Dokument"
+
+#: documents/models.py:310
+msgid "documents"
+msgstr "Dokumente"
+
+#: documents/models.py:599
+msgid "Debugging"
+msgstr "Debug"
+
+#: documents/models.py:600
+msgid "Informational"
+msgstr "Information"
+
+#: documents/models.py:601
+msgid "Warning"
+msgstr "Warnung"
+
+#: documents/models.py:602
+msgid "Error"
+msgstr "Fehler"
+
+#: documents/models.py:603
+msgid "Critical"
+msgstr "Kritisch"
+
+#: documents/models.py:608
+msgid "message"
+msgstr "Meldung"
+
+#: documents/models.py:613
+msgid "level"
+msgstr "Stufe"
+
+#: documents/models.py:618
+msgid "created"
+msgstr "Erzeugt"
+
+#: documents/models.py:630
+msgid "log"
+msgstr "Protokoll"
+
+#: documents/models.py:631
+msgid "logs"
+msgstr "Protokolle"
+
+#: documents/templates/admin/documents/correspondent/change_list.html:9
+msgid "Apply correspondents to all documents in database"
+msgstr "Alle Absender in der Datenbank anwenden"
+
+#: documents/templates/admin/documents/document/change_list_results.html:131
+msgid "Remove from sorting"
+msgstr "Als Sortierkriterium entfernen"
+
+#: documents/templates/admin/documents/document/change_list_results.html:132
+msgid "Sorting priority: %(priority_number)s"
+msgstr "Sortierreihenfolge: %(priority_number)s"
+
+#: documents/templates/admin/documents/document/change_list_results.html:133
+msgid "Toggle sorting"
+msgstr "Reihenfolge umschalten"
+
+#: documents/templates/admin/documents/document/select_object.html:20
+msgid "Home"
+msgstr "Start"
+
+#: documents/templates/admin/documents/document/select_object.html:45
+msgid "Confirm"
+msgstr "Bestätigen"
+
+#: documents/templates/admin/documents/document/select_object.html:46
+msgid "Go back"
+msgstr "Zurück"
+
+#: documents/templates/admin/documents/tag/change_list.html:8
+msgid "Apply tags to all documents in database"
+msgstr "Alle Schlüsselwörter in der Datenbank anwenden"
+
+#: documents/templates/admin/index.html:11
+msgid "Search documents"
+msgstr "Suche Dokumente"
+
+#: documents/templates/admin/index.html:17
+msgid "Search"
+msgstr "Suche"
+
+#: documents/templates/admin/index.html:30
+msgid "Recent actions"
+msgstr "Letzte Aktionen"
+
+#: documents/templates/admin/index.html:31
+msgid "My actions"
+msgstr "Meine Aktionen"
+
+#: documents/templates/admin/index.html:35
+msgid "None available"
+msgstr "Nichts verfügbar"
+
+#: documents/templates/admin/index.html:49
+msgid "Unknown content"
+msgstr "Unbekannter Inhalt"
+
+#: paperless/settings.py:217
+msgid "English"
+msgstr "Englisch"
+
+#: paperless/settings.py:218
+msgid "German"
+msgstr "Deutsch"
+
+#: reminders/models.py:14
+msgid "datetime"
+msgstr "Datum und Uhrzeit"
+
+#: reminders/models.py:19
+msgid "note"
+msgstr "Notiz"
+
+#: reminders/models.py:23
+msgid "reminder"
+msgstr "Erinnerung"
+
+#: reminders/models.py:24
+msgid "reminders"
+msgstr "Erinnerungen"

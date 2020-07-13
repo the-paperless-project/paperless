@@ -13,6 +13,7 @@ from django.utils.http import urlquote
 from django.utils.safestring import mark_safe
 from djangoql.admin import DjangoQLSearchMixin
 from django.urls import path
+from django.utils.translation import ugettext_lazy as _
 
 from documents.actions import (
     add_tag_to_selected,
@@ -141,10 +142,12 @@ class CorrespondentAdmin(CommonAdmin):
     def document_count(self, obj):
         return obj.document_count
     document_count.admin_order_field = "document_count"
+    document_count.verbose_name = _("document_count")
 
     def last_correspondence(self, obj):
         return obj.last_correspondence
     last_correspondence.admin_order_field = "last_correspondence"
+    last_correspondence.verbose_name = _("last_correspondence")
 
     def get_urls(self):
         urls = super().get_urls() 
@@ -157,7 +160,7 @@ class CorrespondentAdmin(CommonAdmin):
         # do the command here
         from django.core import management
         management.call_command('document_correspondents', verbosity=1, use_first=True)
-        self.message_user(request, "Currently known correspondents were applied.")
+        self.message_user(request, _("Currently known correspondents were applied."))
         return HttpResponseRedirect("../")
 
 
@@ -183,6 +186,7 @@ class TagAdmin(CommonAdmin):
     def document_count(self, obj):
         return obj.document_count
     document_count.admin_order_field = "document_count"
+    document_count.verbose_name = _("document_count")
 
     def get_urls(self):
         urls = super().get_urls() 
@@ -195,7 +199,7 @@ class TagAdmin(CommonAdmin):
         # do the command here
         from django.core import management
         management.call_command('document_retagger', verbosity=1)
-        self.message_user(request, "Currently known tags were applied.")
+        self.message_user(request, _("Currently known tags were applied."))
         return HttpResponseRedirect("../")
 
 class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
@@ -206,7 +210,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         }
 
     search_fields = ("correspondent__name", "title", "content", "tags__name")
-    readonly_fields = ("added", "file_type", "storage_type",)
+    readonly_fields = ("added", "file_type", "storage_type", "checksum")
     list_display = ("title", "created", "added", "thumbnail", "correspondent",
                     "tags_")
     list_filter = (

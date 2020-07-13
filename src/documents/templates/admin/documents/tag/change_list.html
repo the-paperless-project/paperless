@@ -1,10 +1,11 @@
 {% extends 'admin/change_list.html' %}
+{% load i18n %}
 
 {% block object-tools %}
     <div>
         <form action="retag/" method="POST">
             {% csrf_token %}
-			<input type="submit" class="button.default" value="Apply tags to all documents in database">
+			<input type="submit" class="button.default" value="{% trans 'Apply tags to all documents in database' %}">
         </form>
     </div>
 	<br />

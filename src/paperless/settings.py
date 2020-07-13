@@ -16,6 +16,7 @@ import re
 
 from dotenv import load_dotenv
 
+from django.utils.translation import ugettext_lazy as _
 
 # Tap paperless.conf if it's available
 if os.path.exists("/etc/paperless.conf"):
@@ -106,6 +107,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 SILENCED_SYSTEM_CHECKS = [
@@ -136,6 +138,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -206,6 +209,14 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale/'),
+)
+
+LANGUAGES = (
+    ('en-us', _('English')),
+    ('de', _('German')),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
