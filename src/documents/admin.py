@@ -12,6 +12,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.http import urlquote
 from django.utils.safestring import mark_safe
 from djangoql.admin import DjangoQLSearchMixin
+from django.urls import path
 
 from documents.actions import (
     add_tag_to_selected,
@@ -127,6 +128,8 @@ class CorrespondentAdmin(CommonAdmin):
 
     readonly_fields = ("slug",)
 
+    change_list_template = "admin/documents/correspondent/change_list.html"
+
     def get_queryset(self, request):
         qs = super(CorrespondentAdmin, self).get_queryset(request)
         qs = qs.annotate(
@@ -143,6 +146,20 @@ class CorrespondentAdmin(CommonAdmin):
         return obj.last_correspondence
     last_correspondence.admin_order_field = "last_correspondence"
 
+    def get_urls(self):
+        urls = super().get_urls() 
+        my_urls = [
+            path('reassign/', self.do_reassign),
+        ]
+        return my_urls + urls
+
+    def do_reassign(self, request): 
+        # do the command here
+        from django.core import management
+        management.call_command('document_correspondents', verbosity=1, use_first=True)
+        self.message_user(request, "Currently known correspondents were applied.")
+        return HttpResponseRedirect("../")
+
 
 class TagAdmin(CommonAdmin):
 
@@ -153,6 +170,8 @@ class TagAdmin(CommonAdmin):
 
     readonly_fields = ("slug",)
 
+    change_list_template = "admin/documents/tag/change_list.html"
+    
     class Media:
         js = ("js/colours.js",)
 
@@ -165,6 +184,19 @@ class TagAdmin(CommonAdmin):
         return obj.document_count
     document_count.admin_order_field = "document_count"
 
+    def get_urls(self):
+        urls = super().get_urls() 
+        my_urls = [
+            path('retag/', self.do_retag),
+        ]
+        return my_urls + urls
+
+    def do_retag(self, request): 
+        # do the command here
+        from django.core import management
+        management.call_command('document_retagger', verbosity=1)
+        self.message_user(request, "Currently known tags were applied.")
+        return HttpResponseRedirect("../")
 
 class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
 
