@@ -70,7 +70,7 @@ COPY scripts/docker-entrypoint.sh /sbin/docker-entrypoint.sh
 RUN chmod 755 /sbin/docker-entrypoint.sh
 
 # Copy gunicorn.conf
-COPY scripts/gunicorn.conf /usr/src/paperless/
+COPY scripts/gunicorn.conf.py /usr/src/paperless/
 
 # Copy init script and gunicorn.conf
 COPY scripts/docker-entrypoint.sh /sbin/docker-entrypoint.sh
