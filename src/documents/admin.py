@@ -216,6 +216,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
     list_filter = (
         "tags",
         ("correspondent", RecentCorrespondentFilter),
+        "added",
         FinancialYearFilter
     )
 
