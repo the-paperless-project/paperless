@@ -73,10 +73,6 @@ RUN chmod 755 /sbin/docker-entrypoint.sh
 # Copy gunicorn.conf
 COPY scripts/gunicorn.conf.py /usr/src/paperless/
 
-# Copy init script and gunicorn.conf
-COPY scripts/docker-entrypoint.sh /sbin/docker-entrypoint.sh
-COPY scripts/gunicorn.conf /usr/src/paperless/
-
 WORKDIR /usr/src/paperless/src
 # Mount volumes and set Entrypoint
 VOLUME ["/usr/src/paperless/data", "/usr/src/paperless/media", "/consume", "/export"]
