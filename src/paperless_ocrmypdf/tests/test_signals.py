@@ -12,9 +12,9 @@ class SignalsTestCase(TestCase):
             "A document with a . in it", "Doc with -- in it"
         )
         suffixes = (
-            "pdf", "jpg", "jpeg", "gif", "png", "tiff", "tif", "pnm", "bmp",
-            "PDF", "JPG", "JPEG", "GIF", "PNG", "TIFF", "TIF", "PNM", "BMP",
-            "pDf", "jPg", "jpEg", "gIf", "pNg", "tIff", "tIf", "pNm", "bMp",
+            "pdf", "jpg", "jpeg", 
+            "PDF", "JPG", "JPEG",
+            "pDf", "jPg", "jpEg",
         )
 
         for prefix in prefixes:
@@ -25,7 +25,12 @@ class SignalsTestCase(TestCase):
     def test_test_handles_various_file_names_false(self):
 
         prefixes = ("doc",)
-        suffixes = ("txt", "markdown", "",)
+        suffixes = (
+            "txt", "markdown", "",
+            "gif", "png", "tiff", "tif", "pnm", "bmp",
+            "GIF", "PNG", "TIFF", "TIF", "PNM", "BMP",
+            "gIf", "pNg", "tIff", "tIf", "pNm", "bMp", 
+            )
 
         for prefix in prefixes:
             for suffix in suffixes:

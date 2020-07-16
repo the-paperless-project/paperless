@@ -110,7 +110,7 @@ class Message(Loggable):
                 self.subject))
 
     def check_body(self):
-        if self.SECRET not in self.body:
+        if self.SECRET and self.SECRET not in self.body:
             raise InvalidMessageError("The secret wasn't in the body")
 
     def _set_time(self, message):
