@@ -13,6 +13,7 @@ django-crispy-forms = "*"
 django-extensions = "*"
 django-filter = "*"
 djangorestframework = "*"
+django-admin-list-filter-dropdown = "*"
 factory-boy = "*"
 filemagic = "*"
 fuzzywuzzy = {extras = ["speedup"],version = "==0.15.0"}

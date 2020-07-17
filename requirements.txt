@@ -13,9 +13,10 @@ coverage==5.2; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2,
 coveralls==2.1.1
 dateparser==0.7.6
 distlib==0.3.1
+django-admin-list-filter-dropdown==1.0.3
 django-cors-headers==3.4.0
 django-crispy-forms==1.9.2
-django-extensions==3.0.2
+django-extensions==3.0.3
 django-filter==2.3.0
 django==2.2.14
 djangoql==0.14.0
@@ -68,7 +69,7 @@ python-dotenv==0.14.0
 python-gnupg==0.4.6
 python-levenshtein==0.12.0
 pytz==2020.1
-regex==2020.6.8
+regex==2020.7.14
 reportlab==3.5.44
 requests==2.24.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
 six==1.15.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
@@ -85,11 +86,11 @@ sqlparse==0.3.1; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.
 termcolor==1.1.0
 text-unidecode==1.3
 toml==0.10.1
-tox==3.16.1
-tqdm==4.47.0; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'
+tox==3.17.1
+tqdm==4.48.0; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'
 tzlocal==2.1
 urllib3==1.25.9; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'
-virtualenv==20.0.26; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+virtualenv==20.0.27; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 wcwidth==0.2.5
 whitenoise==5.1.0
 zipp==3.1.0; python_version >= '3.6'
