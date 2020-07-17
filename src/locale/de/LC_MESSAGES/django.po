@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-15 15:57+0200\n"
+"POT-Creation-Date: 2020-07-17 13:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,21 +18,78 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: documents/admin.py:145 documents/admin.py:189
+#: documents/actions.py:92
+msgid "Add tag to multiple documents"
+msgstr "Schlüsselwort zu mehreren Dokumenten hinzufügen"
+
+#: documents/actions.py:95
+#, python-format
+msgid "Successfully added tag %(selected_object)s to %(count)d %(items)s."
+msgstr "Schlüsselwort %(selected_object)s zu %(count)d %(items)s hinzugefügt."
+
+#: documents/actions.py:106
+msgid "Remove tag from multiple documents"
+msgstr "Schlüsselwort von mehreren Dokumenten entfernen"
+
+#: documents/actions.py:109
+#, python-format
+msgid "Successfully removed tag %(selected_object)s from %(count)d %(items)s."
+msgstr "Schlüsselwort %(selected_object)s von %(count)d %(items)s entfernt."
+
+#: documents/actions.py:121
+msgid "Set correspondent on multiple documents"
+msgstr "Absender für mehrere Dokumente setzen"
+
+#: documents/actions.py:124
+#, python-format
+msgid ""
+"Successfully set correspondent %(selected_object)s on %(count)d %(items)s."
+msgstr "Absender %(selected_object)s für %(count)d %(items)s gesetzt."
+
+#: documents/actions.py:135
+msgid "Remove correspondent from multiple documents"
+msgstr "Absender für mehrere Dokumente entfernen"
+
+#: documents/actions.py:136
+#, python-format
+msgid "Successfully removed correspondent from %(count)d %(items)s."
+msgstr "Absender von %(count)d %(items)s entfernt."
+
+#: documents/actions.py:142
+msgid "Add tag to selected documents"
+msgstr "Stichwort zu ausgewählten Dokumenten hinzufügen"
+
+#: documents/actions.py:144
+msgid "Remove tag from selected documents"
+msgstr "Stichwort von ausgewählten Dokumenten entfernen"
+
+#: documents/actions.py:146
+msgid "Set correspondent on selected documents"
+msgstr "Absender für ausgewählte Dokumente setzen"
+
+#: documents/actions.py:148
+msgid "Remove correspondent from selected documents"
+msgstr "Absender von ausgewählten Dokumenten entfernen"
+
+#: documents/admin.py:148 documents/admin.py:192
 msgid "document_count"
 msgstr "Anzahl der Dokumente"
 
-#: documents/admin.py:150
+#: documents/admin.py:153
 msgid "last_correspondence"
 msgstr "Letzter Kontakt"
 
-#: documents/admin.py:163
+#: documents/admin.py:166
 msgid "Currently known correspondents were applied."
 msgstr "Absender wurden aktualisiert."
 
-#: documents/admin.py:202
+#: documents/admin.py:205
 msgid "Currently known tags were applied."
 msgstr "Derzeit bekannte Schlüsselwörter wurden angewendet."
+
+#: documents/apps.py:8 documents/models.py:310
+msgid "documents"
+msgstr "Dokumente"
 
 #: documents/models.py:49
 msgid "match"
@@ -106,10 +163,6 @@ msgstr "Dateipfad"
 msgid "document"
 msgstr "Dokument"
 
-#: documents/models.py:310
-msgid "documents"
-msgstr "Dokumente"
-
 #: documents/models.py:599
 msgid "Debugging"
 msgstr "Debug"
@@ -159,6 +212,7 @@ msgid "Remove from sorting"
 msgstr "Als Sortierkriterium entfernen"
 
 #: documents/templates/admin/documents/document/change_list_results.html:132
+#, python-format
 msgid "Sorting priority: %(priority_number)s"
 msgstr "Sortierreihenfolge: %(priority_number)s"
 
@@ -169,6 +223,11 @@ msgstr "Reihenfolge umschalten"
 #: documents/templates/admin/documents/document/select_object.html:20
 msgid "Home"
 msgstr "Start"
+
+#: documents/templates/admin/documents/document/select_object.html:28
+#, python-format
+msgid "'Please select the %(itemname)s.'"
+msgstr "Bitte %(itemname)s auswählen."
 
 #: documents/templates/admin/documents/document/select_object.html:45
 msgid "Confirm"
@@ -206,11 +265,11 @@ msgstr "Nichts verfügbar"
 msgid "Unknown content"
 msgstr "Unbekannter Inhalt"
 
-#: paperless/settings.py:217
+#: paperless/settings.py:218
 msgid "English"
 msgstr "Englisch"
 
-#: paperless/settings.py:218
+#: paperless/settings.py:219
 msgid "German"
 msgstr "Deutsch"
 

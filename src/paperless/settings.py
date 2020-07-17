@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_admin_listfilter_dropdown",
 
     "corsheaders",
     "django_extensions",

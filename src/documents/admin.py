@@ -14,6 +14,9 @@ from django.utils.safestring import mark_safe
 from djangoql.admin import DjangoQLSearchMixin
 from django.urls import path
 from django.utils.translation import ugettext_lazy as _
+from django_admin_listfilter_dropdown.filters import (
+    DropdownFilter, ChoiceDropdownFilter, RelatedDropdownFilter
+)
 
 from documents.actions import (
     add_tag_to_selected,
@@ -214,7 +217,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
     list_display = ("title", "created", "added", "thumbnail", "correspondent",
                     "tags_")
     list_filter = (
-        "tags",
+        ("tags", RelatedDropdownFilter),
         ("correspondent", RecentCorrespondentFilter),
         "added",
         FinancialYearFilter
