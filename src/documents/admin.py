@@ -179,7 +179,9 @@ class TagAdmin(CommonAdmin):
     change_list_template = "admin/documents/tag/change_list.html"
     
     class Media:
-        js = ("js/colours.js",)
+        js = (
+            "js/jquery.min.js",  # jquery
+            "js/colours.js",)
 
     def get_queryset(self, request):
         qs = super(TagAdmin, self).get_queryset(request)
