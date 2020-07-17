@@ -42,8 +42,7 @@ msgstr "Absender für mehrere Dokumente setzen"
 
 #: documents/actions.py:124
 #, python-format
-msgid ""
-"Successfully set correspondent %(selected_object)s on %(count)d %(items)s."
+msgid "Successfully set correspondent %(selected_object)s on %(count)d %(items)s."
 msgstr "Absender %(selected_object)s für %(count)d %(items)s gesetzt."
 
 #: documents/actions.py:135
@@ -57,11 +56,11 @@ msgstr "Absender von %(count)d %(items)s entfernt."
 
 #: documents/actions.py:142
 msgid "Add tag to selected documents"
-msgstr "Stichwort zu ausgewählten Dokumenten hinzufügen"
+msgstr "Schlüsselwort zu ausgewählten Dokumenten hinzufügen"
 
 #: documents/actions.py:144
 msgid "Remove tag from selected documents"
-msgstr "Stichwort von ausgewählten Dokumenten entfernen"
+msgstr "Schlüsselwort von ausgewählten Dokumenten entfernen"
 
 #: documents/actions.py:146
 msgid "Set correspondent on selected documents"
