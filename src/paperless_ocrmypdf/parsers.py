@@ -77,11 +77,11 @@ class PdfDocumentParser(DocumentParser):
     def _is_ocred(self):
 
         # Extract text from PDF using pdftotext
-        text = get_text_from_pdf(self.archive_path)
+        self._text = get_text_from_pdf(self.document_path)
 
         # We assume, that a PDF with at least 50 characters contains text
         # (so no OCR required)
-        return len(text) > 50
+        return len(self._text) > 50
 
     def get_text(self):
 
@@ -90,7 +90,6 @@ class PdfDocumentParser(DocumentParser):
 
         if not self.OCR_ALWAYS and self._is_ocred():
             self.log("info", "Skipping OCR, using Text from PDF")
-            self._text = get_text_from_pdf(self.archive_path)
             return self._text
 
         try:
@@ -139,4 +138,11 @@ def get_text_from_pdf(pdf_file):
         except pdftotext.Error:
             return ""
 
-    return "\n".join(pdf)
+    text = "\n".join(pdf)
+
+    collapsed_spaces = re.sub(r"([^\S\r\n]+)", " ", text)
+    no_leading_whitespace = re.sub(
+        r"([\n\r]+)([^\S\n\r]+)", '\\1', collapsed_spaces)
+    no_trailing_whitespace = re.sub(
+        r"([^\S\n\r]+)$", '', no_leading_whitespace)
+    return no_trailing_whitespace
