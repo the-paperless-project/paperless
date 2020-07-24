@@ -36,10 +36,6 @@ class Consumer:
       5. Delete the document and image(s)
     """
 
-    # Files are considered ready for consumption if they have been unmodified
-    # for this duration
-    FILES_MIN_UNMODIFIED_DURATION = 0.5
-
     def __init__(self, consume=settings.CONSUMPTION_DIR,
                  scratch=settings.SCRATCH_DIR,
                  move=settings.CONSUMER_MOVES):
@@ -120,7 +116,11 @@ class Consumer:
                 continue
 
             file = (entry.path, os.path.getmtime(entry.path), os.path.getsize(entry.path))
-            
+
+            # skip zero length files, maybe a copy in progress
+            if file[2] == 0:
+                continue
+
             if file in self._ignore:
                 ignored_files.append(file)
                 if self.move:
@@ -141,10 +141,10 @@ class Consumer:
 
         candidate_files.sort(key=itemgetter(1))
 
-        for file in candidate_files:
-            self.logger.info("Candidate file: {}, {} Byte".format(file[0], file[2]))
-            if not self.try_consume_file(file[0]):
-                self._ignore.append(file)
+        for cfile in candidate_files:
+            self.logger.info("Candidate file: {}, {} Byte".format(cfile[0], cfile[2]))
+            if not self.try_consume_file(cfile[0]):
+                self._ignore.append(cfile)
 
     @transaction.atomic
     def try_consume_file(self, file):
