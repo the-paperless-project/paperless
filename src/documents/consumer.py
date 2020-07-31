@@ -54,7 +54,7 @@ class Consumer:
         self.duplicate = os.path.join(consume, "duplicate")
 
         """ ignore all dot-files """
-        self.ABSOLUTELY_IGNORED_FILES = re.compile(r"^\..*$")
+        self.ABSOLUTELY_IGNORED_FILES = re.compile(r"^\.+[^\/]*$")
 
         os.makedirs(self.scratch, exist_ok=True)
 
@@ -168,9 +168,9 @@ class Consumer:
         still can detect duplicates
         """
         with open(doc, "rb") as f:
-            checksum = hashlib.md5(f.read()).hexdigest()
+            original_checksum = hashlib.md5(f.read()).hexdigest()
 
-        if self._is_duplicate(checksum):
+        if self._is_duplicate(original_checksum):
             self.logger.info("Skipping {} as it appears to be a duplicate".format(doc))
 
             if self.move:
@@ -202,7 +202,8 @@ class Consumer:
                 parsed_document.get_archive_docname(),
                 parsed_document.get_optimised_thumbnail(),
                 parsed_document.get_date(),
-                checksum
+                original_checksum,
+                parsed_document.get_pagecount()
             )
         except ParseError as e:
             self.logger.error("PARSE FAILURE for {}: {}".format(doc, e))
@@ -246,7 +247,7 @@ class Consumer:
         return sorted(
             options, key=lambda _: _["weight"], reverse=True)[0]["parser"]
 
-    def _store(self, text, doc, thumbnail, date, checksum):
+    def _store(self, text, doc, thumbnail, date, checksum, pagecount):
 
         file_info = FileInfo.from_path(doc)
 
@@ -266,7 +267,8 @@ class Consumer:
                 checksum=checksum,
                 created=created,
                 modified=created,
-                storage_type=self.storage_type
+                storage_type=self.storage_type,
+                pages=pagecount
             )
 
         relevant_tags = set(list(Tag.match_all(text)) + list(file_info.tags))

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-17 13:15+0200\n"
+"POT-Creation-Date: 2020-07-30 22:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,7 +70,7 @@ msgstr "Absender für ausgewählte Dokumente setzen"
 msgid "Remove correspondent from selected documents"
 msgstr "Absender von ausgewählten Dokumenten entfernen"
 
-#: documents/admin.py:148 documents/admin.py:192
+#: documents/admin.py:148 documents/admin.py:194
 msgid "document_count"
 msgstr "Anzahl der Dokumente"
 
@@ -82,11 +82,19 @@ msgstr "Letzter Kontakt"
 msgid "Currently known correspondents were applied."
 msgstr "Absender wurden aktualisiert."
 
-#: documents/admin.py:205
+#: documents/admin.py:207
 msgid "Currently known tags were applied."
 msgstr "Derzeit bekannte Schlüsselwörter wurden angewendet."
 
-#: documents/apps.py:8 documents/models.py:310
+#: documents/admin.py:360
+msgid "{} pages"
+msgstr "{} Seiten"
+
+#: documents/admin.py:362
+msgid "{} page"
+msgstr "{} Seite"
+
+#: documents/apps.py:8 documents/models.py:317
 msgid "documents"
 msgstr "Dokumente"
 
@@ -142,7 +150,7 @@ msgstr "Prüfsumme"
 msgid "documentcreated"
 msgstr "Datum des Dokuments"
 
-#: documents/models.py:281 documents/models.py:623
+#: documents/models.py:281 documents/models.py:630
 msgid "modified"
 msgstr "Verändert"
 
@@ -158,47 +166,51 @@ msgstr "Hinzugefügt"
 msgid "filename"
 msgstr "Dateipfad"
 
-#: documents/models.py:309 reminders/models.py:10
+#: documents/models.py:311
+msgid "pagecount"
+msgstr "Seitenzahl"
+
+#: documents/models.py:316 reminders/models.py:10
 msgid "document"
 msgstr "Dokument"
 
-#: documents/models.py:599
+#: documents/models.py:606
 msgid "Debugging"
 msgstr "Debug"
 
-#: documents/models.py:600
+#: documents/models.py:607
 msgid "Informational"
 msgstr "Information"
 
-#: documents/models.py:601
+#: documents/models.py:608
 msgid "Warning"
 msgstr "Warnung"
 
-#: documents/models.py:602
+#: documents/models.py:609
 msgid "Error"
 msgstr "Fehler"
 
-#: documents/models.py:603
+#: documents/models.py:610
 msgid "Critical"
 msgstr "Kritisch"
 
-#: documents/models.py:608
+#: documents/models.py:615
 msgid "message"
 msgstr "Meldung"
 
-#: documents/models.py:613
+#: documents/models.py:620
 msgid "level"
 msgstr "Stufe"
 
-#: documents/models.py:618
+#: documents/models.py:625
 msgid "created"
 msgstr "Erzeugt"
 
-#: documents/models.py:630
+#: documents/models.py:637
 msgid "log"
 msgstr "Protokoll"
 
-#: documents/models.py:631
+#: documents/models.py:638
 msgid "logs"
 msgstr "Protokolle"
 
@@ -206,16 +218,16 @@ msgstr "Protokolle"
 msgid "Apply correspondents to all documents in database"
 msgstr "Alle Absender in der Datenbank anwenden"
 
-#: documents/templates/admin/documents/document/change_list_results.html:131
+#: documents/templates/admin/documents/document/change_list_results.html:136
 msgid "Remove from sorting"
 msgstr "Als Sortierkriterium entfernen"
 
-#: documents/templates/admin/documents/document/change_list_results.html:132
+#: documents/templates/admin/documents/document/change_list_results.html:137
 #, python-format
 msgid "Sorting priority: %(priority_number)s"
 msgstr "Sortierreihenfolge: %(priority_number)s"
 
-#: documents/templates/admin/documents/document/change_list_results.html:133
+#: documents/templates/admin/documents/document/change_list_results.html:138
 msgid "Toggle sorting"
 msgstr "Reihenfolge umschalten"
 

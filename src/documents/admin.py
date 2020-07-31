@@ -217,7 +217,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
     search_fields = ("correspondent__name", "title", "content", "tags__name")
     readonly_fields = ("added", "file_type", "storage_type", "checksum")
     list_display = ("title", "created", "added", "thumbnail", "correspondent",
-                    "tags_")
+                    "tags_", "pages_")
     list_filter = (
         ("tags", RelatedDropdownFilter),
         ("correspondent", RecentCorrespondentFilter),
@@ -353,6 +353,22 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
                 }
             )
         return r
+
+    @mark_safe
+    def pages_(self, obj):
+        if obj.pages > 1:
+            text = _('{} pages').format(obj.pages)
+        elif obj.pages == 1:
+            text = _('{} page').format(obj.pages)
+        else:
+            text = ''
+
+        return self._html_tag(
+            "a",
+            text,
+            **{
+                "class": "pages"
+            })
 
     @mark_safe
     def document(self, obj):

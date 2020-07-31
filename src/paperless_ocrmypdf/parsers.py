@@ -28,6 +28,7 @@ class PdfDocumentParser(DocumentParser):
     def __init__(self, path):
         super().__init__(path)
         self._text = None
+        self._pagecount = None
 
     def get_thumbnail(self):
         """
@@ -74,28 +75,37 @@ class PdfDocumentParser(DocumentParser):
 
         return out_path
 
-    def _is_ocred(self):
-
-        # Extract text from PDF using pdftotext
-        self._text = get_text_from_pdf(self.document_path)
-
-        # We assume, that a PDF with at least 50 characters contains text
-        # (so no OCR required)
-        return len(self._text) > 50
-
     def get_text(self):
 
         if self._text is not None:
             return self._text
+        else:
+            self._do_work()
+            return self._text    
 
-        if not self.OCR_ALWAYS and self._is_ocred():
-            self.log("info", "Skipping OCR, using Text from PDF")
-            return self._text
+    def get_pagecount(self):
+
+        if self._pagecount is not None:
+            return self._pagecount
+        else:
+            self._do_work()
+            return self._pagecount    
+
+    def _do_work(self):
+        
+        if not self.OCR_ALWAYS:
+            # Extract text and infos from PDF using pdftotext
+            self._extract_pdf(self.document_path)
+
+            # We assume, that a PDF with at least 50 characters contains text
+            # (so no OCR required)
+            if len(self._text) > 50:
+                self.log("info", "Skipping OCR, using Text from PDF")
+                return
 
         try:
             self._ocr(self.document_path)
-            self._text = get_text_from_pdf(self.archive_path)
-            return self._text
+            self._extract_pdf(self.archive_path)
         except ParseError as e:
             raise ParseError(e)
 
@@ -119,6 +129,26 @@ class PdfDocumentParser(DocumentParser):
         except:
             raise ParseError("Ocrmypdf failed for {}".format(self.document_path))
 
+
+    def _extract_pdf(self, path):
+
+        with open(path, "rb") as f:
+            try:
+                pdf = pdftotext.PDF(f)
+                text = "\n".join(pdf)
+                self._pagecount = len(pdf)
+            except pdftotext.Error:
+                raise ParseError("pdftotext failed for {}".format(path))
+        
+        collapsed_spaces = re.sub(r"([^\S\r\n]+)", " ", text)
+        no_leading_whitespace = re.sub(
+            r"([\n\r]+)([^\S\n\r]+)", '\\1', collapsed_spaces)
+        no_trailing_whitespace = re.sub(
+            r"([^\S\n\r]+)$", '', no_leading_whitespace)
+
+        self._text = no_trailing_whitespace
+
+
 def run_convert(*args):
 
     environment = os.environ.copy()
@@ -130,19 +160,3 @@ def run_convert(*args):
     if not subprocess.Popen(args, env=environment).wait() == 0:
         raise ParseError("Convert failed at {}".format(args))
 
-def get_text_from_pdf(pdf_file):
-
-    with open(pdf_file, "rb") as f:
-        try:
-            pdf = pdftotext.PDF(f)
-        except pdftotext.Error:
-            return ""
-
-    text = "\n".join(pdf)
-
-    collapsed_spaces = re.sub(r"([^\S\r\n]+)", " ", text)
-    no_leading_whitespace = re.sub(
-        r"([\n\r]+)([^\S\n\r]+)", '\\1', collapsed_spaces)
-    no_trailing_whitespace = re.sub(
-        r"([^\S\n\r]+)$", '', no_leading_whitespace)
-    return no_trailing_whitespace

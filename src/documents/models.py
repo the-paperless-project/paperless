@@ -304,6 +304,13 @@ class Document(models.Model):
         verbose_name=_('filename')
     )
 
+    pages = models.IntegerField(
+        editable=False,
+        default=1,
+        help_text="Number of pages",
+        verbose_name=_('pagecount')
+    )
+
     class Meta:
         ordering = ("correspondent", "title")
         verbose_name = _('document')

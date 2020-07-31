@@ -81,6 +81,12 @@ class DocumentParser:
         """
         raise NotImplementedError()
 
+    def get_pagecount(self):
+        """
+        Returns the pagecount.
+        """
+        return 1
+
     def get_date(self):
         """
         Returns the date of the document.
