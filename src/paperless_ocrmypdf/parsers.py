@@ -126,7 +126,9 @@ class PdfDocumentParser(DocumentParser):
                          language=self.DEFAULT_OCR_LANGUAGE,
                          output_type="pdf",
                          progress_bar=False,
-                         image_dpi=300)
+                         image_dpi=300,
+                         rotate_pages=True,
+                         rotate_pages_threshold=10)
             self.archive_path = out_path
         except Exception:
             raise ParseError("Ocrmypdf failed for {}".format(
