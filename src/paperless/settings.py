@@ -140,6 +140,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
+                'paperless.context_processors.selected_settings',
             ],
         },
     },
@@ -264,6 +265,12 @@ LOGGING = {
     },
 }
 
+# read the version information from file filled at build time
+try:
+    with open(os.path.join(BASE_DIR, "version.txt")) as v_file:
+        APP_VERSION_NUMBER = v_file.read()
+except:
+    APP_VERSION_NUMBER = "version.txt not readable"
 
 # The default language that tesseract will attempt to use when parsing
 # documents.  It should be a 3-letter language code consistent with ISO 639.
