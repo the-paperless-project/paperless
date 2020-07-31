@@ -88,3 +88,5 @@ static/
 
 # consume
 consume/
+
+src/version.txt
