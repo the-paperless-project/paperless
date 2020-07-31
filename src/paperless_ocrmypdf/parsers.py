@@ -128,10 +128,12 @@ class PdfDocumentParser(DocumentParser):
                          progress_bar=False,
                          image_dpi=300,
                          rotate_pages=True,
-                         rotate_pages_threshold=10)
+                         rotate_pages_threshold=10,
+                         redo_ocr=True)
             self.archive_path = out_path
-        except Exception:
-            raise ParseError("Ocrmypdf failed for {}".format(
+        except Exception as e:
+            raise ParseError("Ocrmypdf failed with {} for {}".format(
+                e,
                 self.document_path))
 
     def _extract_pdf(self, path):
