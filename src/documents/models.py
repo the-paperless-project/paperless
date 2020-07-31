@@ -268,7 +268,7 @@ class Document(models.Model):
         verbose_name=_('checksum')
     )
 
-    created = models.DateTimeField(
+    created = models.DateField(
         default=timezone.now,
         db_index=True,
         verbose_name=_('documentcreated')
