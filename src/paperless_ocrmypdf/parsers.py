@@ -9,8 +9,10 @@ import ocrmypdf
 import pdftotext
 from documents.parsers import DocumentParser, ParseError
 
+
 class OCRError(Exception):
     pass
+
 
 class PdfDocumentParser(DocumentParser):
     """
@@ -81,7 +83,7 @@ class PdfDocumentParser(DocumentParser):
             return self._text
         else:
             self._do_work()
-            return self._text    
+            return self._text
 
     def get_pagecount(self):
 
@@ -89,10 +91,10 @@ class PdfDocumentParser(DocumentParser):
             return self._pagecount
         else:
             self._do_work()
-            return self._pagecount    
+            return self._pagecount
 
     def _do_work(self):
-        
+
         if not self.OCR_ALWAYS:
             # Extract text and infos from PDF using pdftotext
             self._extract_pdf(self.document_path)
@@ -119,16 +121,16 @@ class PdfDocumentParser(DocumentParser):
         out_path = os.path.join(self.tempdir, "ocrmypdf.pdf")
 
         try:
-            ocrmypdf.ocr(self.document_path, 
+            ocrmypdf.ocr(self.document_path,
                          out_path,
-                         language=self.DEFAULT_OCR_LANGUAGE, 
+                         language=self.DEFAULT_OCR_LANGUAGE,
                          output_type="pdf",
                          progress_bar=False,
                          image_dpi=300)
             self.archive_path = out_path
-        except:
-            raise ParseError("Ocrmypdf failed for {}".format(self.document_path))
-
+        except Exception:
+            raise ParseError("Ocrmypdf failed for {}".format(
+                self.document_path))
 
     def _extract_pdf(self, path):
 
@@ -139,7 +141,7 @@ class PdfDocumentParser(DocumentParser):
                 self._pagecount = len(pdf)
             except pdftotext.Error:
                 raise ParseError("pdftotext failed for {}".format(path))
-        
+
         collapsed_spaces = re.sub(r"([^\S\r\n]+)", " ", text)
         no_leading_whitespace = re.sub(
             r"([\n\r]+)([^\S\n\r]+)", '\\1', collapsed_spaces)
@@ -159,4 +161,3 @@ def run_convert(*args):
 
     if not subprocess.Popen(args, env=environment).wait() == 0:
         raise ParseError("Convert failed at {}".format(args))
-

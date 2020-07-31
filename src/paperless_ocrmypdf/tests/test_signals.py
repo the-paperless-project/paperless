@@ -12,7 +12,7 @@ class SignalsTestCase(TestCase):
             "A document with a . in it", "Doc with -- in it"
         )
         suffixes = (
-            "pdf", "jpg", "jpeg", 
+            "pdf", "jpg", "jpeg",
             "PDF", "JPG", "JPEG",
             "pDf", "jPg", "jpEg",
         )
@@ -29,7 +29,7 @@ class SignalsTestCase(TestCase):
             "txt", "markdown", "",
             "gif", "png", "tiff", "tif", "pnm", "bmp",
             "GIF", "PNG", "TIFF", "TIF", "PNM", "BMP",
-            "gIf", "pNg", "tIff", "tIf", "pNm", "bMp", 
+            "gIf", "pNg", "tIff", "tIf", "pNm", "bMp",
             )
 
         for prefix in prefixes:

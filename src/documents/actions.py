@@ -93,7 +93,7 @@ def add_tag_to_selected(modeladmin, request, queryset):
         action="add_tag_to_selected",
         modelclass=Tag,
         success_message=_("Successfully added tag %(selected_object)s to "
-                        "%(count)d %(items)s."),
+                          "%(count)d %(items)s."),
         document_action=lambda doc, tag: doc.tags.add(tag)
     )
 
@@ -107,7 +107,7 @@ def remove_tag_from_selected(modeladmin, request, queryset):
         action="remove_tag_from_selected",
         modelclass=Tag,
         success_message=_("Successfully removed tag %(selected_object)s from "
-                        "%(count)d %(items)s."),
+                          "%(count)d %(items)s."),
         document_action=lambda doc, tag: doc.tags.remove(tag)
     )
 
@@ -122,7 +122,7 @@ def set_correspondent_on_selected(modeladmin, request, queryset):
         action="set_correspondent_on_selected",
         modelclass=Correspondent,
         success_message=_("Successfully set correspondent %(selected_object)s "
-                        "on %(count)d %(items)s."),
+                          "on %(count)d %(items)s."),
         queryset_action=lambda qs, corr: qs.update(correspondent=corr)
     )
 
@@ -134,7 +134,7 @@ def remove_correspondent_from_selected(modeladmin, request, queryset):
         queryset=queryset,
         title=_("Remove correspondent from multiple documents"),
         success_message=_("Successfully removed correspondent from %(count)d "
-                        "%(items)s."),
+                          "%(items)s."),
         queryset_action=lambda qs: qs.update(correspondent=None)
     )
 

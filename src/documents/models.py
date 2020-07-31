@@ -205,6 +205,7 @@ class Tag(MatchingModel):
         verbose_name = _('tag')
         verbose_name_plural = _('tags')
 
+
 class Document(models.Model):
 
     TYPE_PDF = "pdf"
@@ -234,14 +235,18 @@ class Document(models.Model):
         verbose_name=_('correspondent')
     )
 
-    title = models.CharField(max_length=128, blank=True, db_index=True, verbose_name=_('title'))
+    title = models.CharField(
+        max_length=128,
+        blank=True,
+        db_index=True,
+        verbose_name=_('title'))
 
     content = models.TextField(
         db_index=True,
         blank=True,
         help_text="The raw, text-only data of the document.  This field is "
                   "primarily used for searching.",
-        verbose_name=_('content')          
+        verbose_name=_('content')
     )
 
     file_type = models.CharField(
@@ -252,10 +257,10 @@ class Document(models.Model):
     )
 
     tags = models.ManyToManyField(
-        Tag, 
-        related_name="documents", 
+        Tag,
+        related_name="documents",
         blank=True,
-        verbose_name = _('tags')
+        verbose_name=_('tags')
     )
 
     checksum = models.CharField(
@@ -273,7 +278,7 @@ class Document(models.Model):
         db_index=True,
         verbose_name=_('documentcreated')
     )
-    
+
     modified = models.DateTimeField(
         auto_now=True,
         editable=False,
@@ -611,9 +616,9 @@ class Log(models.Model):
     )
 
     group = models.UUIDField(blank=True)
-    
+
     message = models.TextField(verbose_name=_('message'))
-    
+
     level = models.PositiveIntegerField(
         choices=LEVELS,
         default=logging.INFO,

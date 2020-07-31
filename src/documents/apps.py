@@ -2,6 +2,7 @@ from django.apps import AppConfig
 from django.db.models.signals import post_delete
 from django.utils.translation import ugettext_lazy as _
 
+
 class DocumentsConfig(AppConfig):
 
     name = "documents"

@@ -153,17 +153,22 @@ class CorrespondentAdmin(CommonAdmin):
     last_correspondence.verbose_name = _("last_correspondence")
 
     def get_urls(self):
-        urls = super().get_urls() 
+        urls = super().get_urls()
         my_urls = [
             path('reassign/', self.do_reassign),
         ]
         return my_urls + urls
 
-    def do_reassign(self, request): 
+    def do_reassign(self, request):
         # do the command here
         from django.core import management
-        management.call_command('document_correspondents', verbosity=1, use_first=True)
-        self.message_user(request, _("Currently known correspondents were applied."))
+        management.call_command(
+            'document_correspondents',
+            verbosity=1,
+            use_first=True)
+        self.message_user(
+            request,
+            _("Currently known correspondents were applied."))
         return HttpResponseRedirect("../")
 
 
@@ -177,7 +182,7 @@ class TagAdmin(CommonAdmin):
     readonly_fields = ("slug",)
 
     change_list_template = "admin/documents/tag/change_list.html"
-    
+
     class Media:
         js = (
             "js/jquery.min.js",  # jquery
@@ -194,18 +199,19 @@ class TagAdmin(CommonAdmin):
     document_count.verbose_name = _("document_count")
 
     def get_urls(self):
-        urls = super().get_urls() 
+        urls = super().get_urls()
         my_urls = [
             path('retag/', self.do_retag),
         ]
         return my_urls + urls
 
-    def do_retag(self, request): 
+    def do_retag(self, request):
         # do the command here
         from django.core import management
         management.call_command('document_retagger', verbosity=1)
         self.message_user(request, _("Currently known tags were applied."))
         return HttpResponseRedirect("../")
+
 
 class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
 

@@ -103,19 +103,22 @@ class Consumer:
 
         for entry in os.scandir(self.consume):
             # Silently skip well-known names without warning
-            if (entry.path == self.processed or \
-                entry.path == self.ignored or \
-                entry.path == self.duplicate):
+            if (entry.path == self.processed or
+                    entry.path == self.ignored or
+                    entry.path == self.duplicate):
                 continue
 
             if not entry.is_file():
-                self.logger.warning("Skipping {} as it is not a file".format(entry.path))
+                self.logger.warning(
+                    "Skipping {} as it is not a file".
+                    format(entry.path))
                 continue
-            
+
             if self.ABSOLUTELY_IGNORED_FILES.match(entry.name):
                 continue
 
-            file = (entry.path, os.path.getmtime(entry.path), os.path.getsize(entry.path))
+            file = (entry.path, os.path.getmtime(entry.path),
+                    os.path.getsize(entry.path))
 
             # skip zero length files, maybe a copy in progress
             if file[2] == 0:
@@ -124,9 +127,12 @@ class Consumer:
             if file in self._ignore:
                 ignored_files.append(file)
                 if self.move:
-                    self.logger.info("Moving '%s' to '%s': file is ignored.", entry.path, self.ignored)
+                    self.logger.info(
+                        "Moving '%s' to '%s': file is ignored.",
+                        entry.path,
+                        self.ignored)
                     self._safe_move(entry.path, self.ignored)
-            elif file in self._files: 
+            elif file in self._files:
                 # this means no changes in name, mtime and size from last check
                 candidate_files.append(file)
             else:
@@ -142,7 +148,9 @@ class Consumer:
         candidate_files.sort(key=itemgetter(1))
 
         for cfile in candidate_files:
-            self.logger.info("Candidate file: {}, {} Byte".format(cfile[0], cfile[2]))
+            self.logger.info(
+                "Candidate file: {}, {} Byte".
+                format(cfile[0], cfile[2]))
             if not self.try_consume_file(cfile[0]):
                 self._ignore.append(cfile)
 
@@ -153,7 +161,7 @@ class Consumer:
         """
 
         # function is called directly via inotify watcher, so this
-        # check is needed here again       
+        # check is needed here again
         if self.ABSOLUTELY_IGNORED_FILES.match(file):
             return False
 
@@ -171,10 +179,15 @@ class Consumer:
             original_checksum = hashlib.md5(f.read()).hexdigest()
 
         if self._is_duplicate(original_checksum):
-            self.logger.info("Skipping {} as it appears to be a duplicate".format(doc))
+            self.logger.info(
+                "Skipping {} as it appears to be a duplicate".
+                format(doc))
 
             if self.move:
-                self.logger.info("Moving '%s' to '%s': file is duplicate.", doc, self.duplicate)
+                self.logger.info(
+                    "Moving '%s' to '%s': file is duplicate.",
+                    doc,
+                    self.duplicate)
                 self._safe_move(doc, self.duplicate)
 
             return False
@@ -212,14 +225,16 @@ class Consumer:
         else:
             parsed_document.cleanup()
 
-            self.logger.info("Document {} consumption finished".format(document))
+            self.logger.info(
+                "Document {} consumption finished".
+                format(document))
 
             document_consumption_finished.send(
                 sender=self.__class__,
                 document=document,
                 logging_group=self.logging_group
             )
-            
+
             return self._cleanup_doc(doc)
 
     def _get_parser_class(self, doc):
@@ -298,16 +313,19 @@ class Consumer:
 
     def _cleanup_doc(self, doc):
         if self.move:
-            self.log("debug", "Moving document {} to {}".format(doc, self.processed))
+            self.log(
+                "debug",
+                "Moving document {} to {}".
+                format(doc, self.processed))
             return self._safe_move(doc, self.processed)
         else:
             self.log("debug", "Deleting document {}".format(doc))
             try:
                 os.unlink(doc)
-            except:
+            except Exception:
                 return False
             else:
-                return True    
+                return True
 
     @staticmethod
     def _is_duplicate(checksum):
@@ -318,13 +336,16 @@ class Consumer:
             shutil.copy2(src, dst, follow_symlinks=False)
             os.unlink(src)
         except IOError as e:
-            self.log("info", "Unable to move file {} to {} : {}".format(src, dst, e))
+            self.log(
+                "info",
+                "Unable to move file {} to {} : {}".
+                format(src, dst, e))
             return False
         except PermissionError as e:
             self.log("info", "{}".format(e))
             return False
-        except:
+        except Exception:
             self.log("info", "Unknown error when moving file {}".format(src))
-            return False    
+            return False
         else:
             return True
