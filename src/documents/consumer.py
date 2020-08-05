@@ -154,7 +154,6 @@ class Consumer:
             if not self.try_consume_file(cfile[0]):
                 self._ignore.append(cfile)
 
-    @transaction.atomic
     def try_consume_file(self, file):
         """
         Return True if file was consumed
@@ -262,6 +261,7 @@ class Consumer:
         return sorted(
             options, key=lambda _: _["weight"], reverse=True)[0]["parser"]
 
+    @transaction.atomic
     def _store(self, text, doc, thumbnail, date, checksum, pagecount):
 
         file_info = FileInfo.from_path(doc)
