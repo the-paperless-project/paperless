@@ -23,7 +23,7 @@ class PdfDocumentParser(DocumentParser):
     CONVERT = settings.CONVERT_BINARY
     GHOSTSCRIPT = settings.GS_BINARY
     DENSITY = settings.CONVERT_DENSITY if settings.CONVERT_DENSITY else 300
-    THREADS = int(settings.OCR_THREADS) if settings.OCR_THREADS else None
+    THREADS = int(settings.OCR_THREADS) if settings.OCR_THREADS else 1
     DEFAULT_OCR_LANGUAGE = settings.OCR_LANGUAGE
     OCR_ALWAYS = settings.OCR_ALWAYS
 
@@ -118,22 +118,34 @@ class PdfDocumentParser(DocumentParser):
         self.log("info", "OCRing the document")
         self.log("info", "Parsing for {}".format(self.DEFAULT_OCR_LANGUAGE))
 
-        out_path = os.path.join(self.tempdir, "ocrmypdf.pdf")
+        out_path = os.path.join(self.tempdir,
+                                os.path.basename(self.document_path))
+
+        if (settings.DEBUG):
+            ocrmypdf.configure_logging(ocrmypdf.Verbosity.debug)
 
         try:
-            ocrmypdf.ocr(self.document_path,
-                         out_path,
-                         language=self.DEFAULT_OCR_LANGUAGE,
-                         output_type="pdf",
-                         progress_bar=False,
-                         image_dpi=300,
-                         rotate_pages=True,
-                         rotate_pages_threshold=10,
-                         redo_ocr=True)
+            rc = ocrmypdf.ocr(self.document_path,
+                              out_path,
+                              language=self.DEFAULT_OCR_LANGUAGE,
+                              output_type="pdf",
+                              progress_bar=False,
+                              image_dpi=self.DENSITY,
+                              rotate_pages=True,
+                              rotate_pages_threshold=8,
+                              redo_ocr=True,
+                              optimize=0,
+                              skip_big=35,
+                              jobs=self.THREADS)
             self.archive_path = out_path
         except Exception as e:
             raise ParseError("Ocrmypdf failed with {} for {}".format(
                 e,
+                self.document_path))
+
+        if (ocrmypdf.ExitCode.ok != rc):
+            self.log("warning", "Ocrmypdf exit was {} for {}".format(
+                rc,
                 self.document_path))
 
     def _extract_pdf(self, path):
