@@ -90,3 +90,5 @@ static/
 consume/
 
 src/version.txt
+
+export/
