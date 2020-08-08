@@ -64,6 +64,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             "file_name",
             "download_url",
             "thumbnail_url",
+            "pages",
         )
 
 
