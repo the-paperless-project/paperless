@@ -370,10 +370,6 @@ class Document(models.Model):
                 # Remove all empty subdirectories from MEDIA_ROOT
                 Document.delete_all_empty_subdirectories(
                         Document.filename_to_path(""))
-            else:
-                logger = logging.getLogger(__name__)
-                logger.error("File of document " + str(self.id) + " has " +
-                             "gone and could not be recovered")
 
         return self.filename
 
