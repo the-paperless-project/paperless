@@ -110,8 +110,8 @@ class Command(Renderable, BaseCommand):
 
             else:
 
-                shutil.copy(document_path, document.source_path)
-                shutil.copy(thumbnail_path, document.thumbnail_path)
+                shutil.copy2(document_path, document.source_path)
+                shutil.copy2(thumbnail_path, document.thumbnail_path)
 
         # Reset the storage type to whatever we've used while importing
 
