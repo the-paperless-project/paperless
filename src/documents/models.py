@@ -356,21 +356,6 @@ class Document(models.Model):
         if self.filename is None:
             self.filename = self.generate_source_filename()
 
-        # Check if document is still available under filename
-        elif not os.path.isfile(Document.filename_to_path(self.filename)):
-            recovered_filename = self.find_renamed_document()
-
-            # If we have found the file so update the filename
-            if recovered_filename is not None:
-                logger = logging.getLogger(__name__)
-                logger.warning("Filename of document " + str(self.id) +
-                               " has changed and was successfully updated")
-                self.filename = recovered_filename
-
-                # Remove all empty subdirectories from MEDIA_ROOT
-                Document.delete_all_empty_subdirectories(
-                        Document.filename_to_path(""))
-
         return self.filename
 
     @staticmethod
@@ -405,11 +390,11 @@ class Document(models.Model):
             tags = defaultdict(lambda: slugify(None),
                                self.many_to_dictionary(self.tags))
             path = settings.PAPERLESS_FILENAME_FORMAT.format(
-                   correspondent=slugify(self.correspondent),
-                   title=slugify(self.title),
-                   created=slugify(self.created),
-                   added=slugify(self.added),
-                   tags=tags)
+                correspondent=slugify(self.correspondent),
+                title=slugify(self.title),
+                created=slugify(self.created),
+                added=slugify(self.added),
+                tags=tags)
         else:
             path = ""
 
@@ -432,7 +417,11 @@ class Document(models.Model):
         dir_new = Document.filename_to_path(os.path.dirname(new_filename))
 
         # Create new path
-        os.makedirs(dir_new, exist_ok=True)
+        try:
+            os.makedirs(dir_new, exist_ok=True)
+        except OSError as e:
+            logger = logging.getLogger(__name__)
+            logger.error("Failed to create directory {}".format(e))
 
     @property
     def source_path(self):
@@ -486,45 +475,32 @@ class Document(models.Model):
             self.filename = filename
 
     @staticmethod
-    def try_delete_empty_directories(directory):
-        # Go up in the directory hierarchy and try to delete all directories
-        directory = os.path.normpath(directory)
-        root = os.path.normpath(Document.filename_to_path(""))
-
-        while directory != root:
-            # Try to delete the current directory
-            try:
-                os.rmdir(directory)
-            except os.error:
-                # Directory not empty, no need to go further up
-                return
-
-            # Cut off actual directory and go one level up
-            directory, _ = os.path.split(directory)
-            directory = os.path.normpath(directory)
-
-    @staticmethod
     def delete_all_empty_subdirectories(directory):
-        # Go through all folders and try to delete all directories
-        root = os.path.normpath(Document.filename_to_path(directory))
+        'Function to recursively remove empty folders starting'
+        'in directory'
+        path = os.path.normpath(directory)
+        not_empty = 0
 
-        for filename in os.listdir(root):
-            fullname = os.path.join(directory, filename)
+        try:
+            files = os.listdir(path)
+        except os.error:
+            return 1
 
-            if not os.path.isdir(Document.filename_to_path(fullname)):
-                continue
+        for f in files:
+            next_path = os.path.join(path, f)
+            if os.path.isdir(next_path):
+                if 0 == Document.delete_all_empty_subdirectories(next_path):
+                    # if folder empty, delete it
+                    try:
+                        os.rmdir(next_path)
+                    except os.error:
+                        not_empty += 1
+                else:
+                    not_empty += 1
+            else:
+                not_empty += 1
 
-            # Go into subdirectory to see, if there is more to delete
-            Document.delete_all_empty_subdirectories(
-                    os.path.join(directory, filename))
-
-            # Try to delete the directory
-            try:
-                os.rmdir(Document.filename_to_path(fullname))
-                continue
-            except os.error:
-                # Directory not empty, no need to go further up
-                continue
+        return not_empty
 
 
 @receiver(models.signals.m2m_changed, sender=Document.tags.through)
@@ -567,10 +543,10 @@ def update_filename(sender, instance, **kwargs):
                      "as file " + instance.filename + " was no longer present")
         return
 
-    # Delete empty directory
-    old_dir = os.path.dirname(instance.filename)
-    old_path = instance.filename_to_path(old_dir)
-    Document.try_delete_empty_directories(old_path)
+    # Delete empty directory for cleanup
+    Document.delete_all_empty_subdirectories(
+        os.path.join(settings.MEDIA_ROOT, "documents", "originals")
+    )
 
     instance.filename = new_filename
 
@@ -578,6 +554,37 @@ def update_filename(sender, instance, **kwargs):
     # This will not cause a cascade of post_save signals, as next time
     # nothing needs to be renamed
     instance.save()
+
+
+@receiver(models.signals.post_init, sender=Document)
+@receiver(models.signals.pre_save, sender=Document)
+def check_if_file_is_present(sender, instance, **kwargs):
+    # Skip if document has not been saved yet
+    if instance.filename is None:
+        return
+
+    # Check if document is still available under filename
+    if not os.path.isfile(Document.filename_to_path(instance.filename)):
+        recovered_filename = instance.find_renamed_document()
+
+        # If we have found the file so update the filename
+        if recovered_filename is not None:
+            logger = logging.getLogger(__name__)
+            logger.warning("Filename of document " + str(instance.id) +
+                           " has changed and was successfully updated")
+            instance.filename = recovered_filename
+            instance.save()
+
+            # Remove all empty subdirectories
+            Document.delete_all_empty_subdirectories(
+                os.path.join(settings.MEDIA_ROOT, "documents", "originals")
+            )
+
+        else:
+            logger = logging.getLogger(__name__)
+            logger.error("File of document " + str(instance.id) +
+                         " not found. Good luck restoring a backup"
+                         " or searching manually!")
 
 
 @receiver(models.signals.post_delete, sender=Document)
@@ -596,9 +603,9 @@ def delete_files(sender, instance, **kwargs):
                        old_file + " was no longer present")
 
     # And remove the directory (if applicable)
-    old_dir = os.path.dirname(instance.filename)
-    old_path = instance.filename_to_path(old_dir)
-    Document.try_delete_empty_directories(old_path)
+    Document.delete_all_empty_subdirectories(
+        os.path.join(settings.MEDIA_ROOT, "documents", "originals")
+    )
 
 
 class Log(models.Model):
