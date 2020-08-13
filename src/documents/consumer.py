@@ -271,26 +271,27 @@ class Consumer:
         self.log("debug", "Saving record to database")
 
         created = file_info.created or date or timezone.make_aware(
-                    datetime.datetime.fromtimestamp(stats.st_mtime))
+            datetime.datetime.fromtimestamp(stats.st_mtime))
 
-        with open(doc, "rb") as f:
-            document = Document.objects.create(
-                correspondent=file_info.correspondent,
-                title=file_info.title,
-                content=text,
-                file_type=file_info.extension,
-                checksum=checksum,
-                created=created,
-                modified=created,
-                storage_type=self.storage_type,
-                pages=pagecount
-            )
+        document = Document.objects.create(
+            correspondent=file_info.correspondent,
+            title=file_info.title,
+            content=text,
+            file_type=file_info.extension,
+            checksum=checksum,
+            created=created,
+            modified=created,
+            storage_type=self.storage_type,
+            pages=pagecount
+        )
 
         relevant_tags = set(list(Tag.match_all(text)) + list(file_info.tags))
         if relevant_tags:
             tag_names = ", ".join([t.slug for t in relevant_tags])
             self.log("debug", "Tagging with {}".format(tag_names))
             document.tags.add(*relevant_tags)
+
+        document.create_source_directory()
 
         self._write(document, doc, document.source_path)
         self._write(document, thumbnail, document.thumbnail_path)
