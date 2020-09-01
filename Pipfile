@@ -15,7 +15,7 @@ django-filter = "*"
 djangorestframework = "*"
 django-admin-list-filter-dropdown = "*"
 django-mysql = "*"
-factory-boy = "*"
+factory-boy = "<3.0"
 filemagic = "*"
 fuzzywuzzy = {extras = ["speedup"],version = "==0.15.0"}
 gunicorn = "*"
