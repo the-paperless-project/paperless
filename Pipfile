@@ -14,6 +14,7 @@ django-extensions = "*"
 django-filter = "*"
 djangorestframework = "*"
 django-admin-list-filter-dropdown = "*"
+django-mysql = "*"
 factory-boy = "*"
 filemagic = "*"
 fuzzywuzzy = {extras = ["speedup"],version = "==0.15.0"}
@@ -41,6 +42,7 @@ whitenoise = "*"
 brotli = "*"
 ocrmypdf = "*"
 pikepdf = "<1.17"
+mysqlclient = "*"
 
 [dev-packages]
 ipython = "*"

@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_admin_listfilter_dropdown",
+    "django_mysql",
 
     "corsheaders",
     "django_extensions",
@@ -165,18 +166,42 @@ DATABASES = {
     }
 }
 
+# if we want to use a 'real' database...
 if os.getenv("PAPERLESS_DBUSER"):
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("PAPERLESS_DBNAME", "paperless"),
-        "USER": os.getenv("PAPERLESS_DBUSER"),
-    }
-    if os.getenv("PAPERLESS_DBPASS"):
-        DATABASES["default"]["PASSWORD"] = os.getenv("PAPERLESS_DBPASS")
-    if os.getenv("PAPERLESS_DBHOST"):
-        DATABASES["default"]["HOST"] = os.getenv("PAPERLESS_DBHOST")
-    if os.getenv("PAPERLESS_DBPORT"):
-        DATABASES["default"]["PORT"] = os.getenv("PAPERLESS_DBPORT")
+    # DB backend specific part
+    # support for MySQL as well
+    if 'mysql' in os.getenv('PAPERLESS_DBENGINE'):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'OPTIONS': {
+                    # Tell MySQLdb to connect with 'utf8mb4' character set
+                    'charset': 'utf8mb4',
+                },
+                # Tell Django to build the test database with the 'utf8mb4' character set
+                'TEST': {
+                    'CHARSET': 'utf8mb4',
+                    'COLLATION': 'utf8mb4_unicode_ci',
+                }
+            }
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2'
+            }
+        }
+    
+    # common DB parameters
+    DATABASES['default']['NAME'] = os.getenv('PAPERLESS_DBNAME', 'paperless')
+    DATABASES['default']['USER'] = os.getenv('PAPERLESS_DBUSER')
+    DATABASES['default']['HOST'] = os.getenv('PAPERLESS_DBHOST')
+
+    # optional DB parameters
+    if os.getenv('PAPERLESS_DBPASS'):
+        DATABASES['default']['PASSWORD'] = os.getenv('PAPERLESS_DBPASS')
+    if os.getenv('PAPERLESS_DBPORT'):
+        DATABASES['default']['PORT'] = os.getenv('PAPERLESS_DBPORT')
 
 
 # Password validation

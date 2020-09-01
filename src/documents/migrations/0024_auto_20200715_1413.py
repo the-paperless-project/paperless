@@ -3,6 +3,7 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
@@ -56,7 +57,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='document',
             name='content',
-            field=models.TextField(blank=True, db_index=True, help_text='The raw, text-only data of the document.  This field is primarily used for searching.', verbose_name='content'),
+            field=models.TextField(blank=True, db_index=("mysql" not in settings.DATABASES["default"]["ENGINE"]), help_text='The raw, text-only data of the document.  This field is primarily used for searching.', verbose_name='content'),
         ),
         migrations.AlterField(
             model_name='document',

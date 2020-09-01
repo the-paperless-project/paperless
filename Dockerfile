@@ -23,7 +23,9 @@ RUN apk add --no-cache \
       libxslt \
       qpdf \
       libxml2 \
-      gettext && \
+      gettext \
+      mariadb-client \
+      mariadb-connector-c && \
     apk add --no-cache --virtual .build-dependencies \
       g++ \
       gcc \
@@ -31,6 +33,7 @@ RUN apk add --no-cache \
       musl-dev \
       poppler-dev \
       postgresql-dev \
+      mariadb-dev \
       python3-dev \
       zlib-dev \
       libxslt-dev \
