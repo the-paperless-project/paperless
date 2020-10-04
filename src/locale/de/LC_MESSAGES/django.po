@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-30 22:41+0200\n"
+"POT-Creation-Date: 2020-10-04 16:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,7 +70,7 @@ msgstr "Absender für ausgewählte Dokumente setzen"
 msgid "Remove correspondent from selected documents"
 msgstr "Absender von ausgewählten Dokumenten entfernen"
 
-#: documents/admin.py:148 documents/admin.py:194
+#: documents/admin.py:148 documents/admin.py:199
 msgid "document_count"
 msgstr "Anzahl der Dokumente"
 
@@ -78,23 +78,23 @@ msgstr "Anzahl der Dokumente"
 msgid "last_correspondence"
 msgstr "Letzter Kontakt"
 
-#: documents/admin.py:166
+#: documents/admin.py:171
 msgid "Currently known correspondents were applied."
 msgstr "Absender wurden aktualisiert."
 
-#: documents/admin.py:207
+#: documents/admin.py:212
 msgid "Currently known tags were applied."
 msgstr "Derzeit bekannte Schlüsselwörter wurden angewendet."
 
-#: documents/admin.py:360
+#: documents/admin.py:366
 msgid "{} pages"
 msgstr "{} Seiten"
 
-#: documents/admin.py:362
+#: documents/admin.py:368
 msgid "{} page"
 msgstr "{} Seite"
 
-#: documents/apps.py:8 documents/models.py:317
+#: documents/apps.py:9 documents/models.py:322
 msgid "documents"
 msgstr "Dokumente"
 
@@ -110,7 +110,7 @@ msgstr "Suchalgorithmus"
 msgid "is_sensitive"
 msgstr "Unterscheidung GROSS/klein"
 
-#: documents/models.py:176 documents/models.py:234
+#: documents/models.py:176 documents/models.py:235
 msgid "correspondent"
 msgstr "Absender"
 
@@ -126,97 +126,105 @@ msgstr "Farbe"
 msgid "tag"
 msgstr "Schlüsselwort"
 
-#: documents/models.py:206 documents/models.py:258
+#: documents/models.py:206 documents/models.py:263
 msgid "tags"
 msgstr "Schlüsselwörter"
 
-#: documents/models.py:237
+#: documents/models.py:242
 msgid "title"
 msgstr "Titel"
 
-#: documents/models.py:244
+#: documents/models.py:249
 msgid "content"
 msgstr "Inhalt"
 
-#: documents/models.py:251
+#: documents/models.py:256
 msgid "filetype"
 msgstr "Dateityp"
 
-#: documents/models.py:268
+#: documents/models.py:273
 msgid "checksum"
 msgstr "Prüfsumme"
 
-#: documents/models.py:274
+#: documents/models.py:279
 msgid "documentcreated"
 msgstr "Datum des Dokuments"
 
-#: documents/models.py:281 documents/models.py:630
+#: documents/models.py:286 documents/models.py:638
 msgid "modified"
 msgstr "Verändert"
 
-#: documents/models.py:289
+#: documents/models.py:294
 msgid "storagetype"
 msgstr "Speicherart"
 
-#: documents/models.py:296
+#: documents/models.py:301
 msgid "added"
 msgstr "Hinzugefügt"
 
-#: documents/models.py:304
+#: documents/models.py:309
 msgid "filename"
 msgstr "Dateipfad"
 
-#: documents/models.py:311
+#: documents/models.py:316
 msgid "pagecount"
 msgstr "Seitenzahl"
 
-#: documents/models.py:316 reminders/models.py:10
+#: documents/models.py:321 reminders/models.py:10
 msgid "document"
 msgstr "Dokument"
 
-#: documents/models.py:606
+#: documents/models.py:614
 msgid "Debugging"
 msgstr "Debug"
 
-#: documents/models.py:607
+#: documents/models.py:615
 msgid "Informational"
 msgstr "Information"
 
-#: documents/models.py:608
+#: documents/models.py:616
 msgid "Warning"
 msgstr "Warnung"
 
-#: documents/models.py:609
+#: documents/models.py:617
 msgid "Error"
 msgstr "Fehler"
 
-#: documents/models.py:610
+#: documents/models.py:618
 msgid "Critical"
 msgstr "Kritisch"
 
-#: documents/models.py:615
+#: documents/models.py:623
 msgid "message"
 msgstr "Meldung"
 
-#: documents/models.py:620
+#: documents/models.py:628
 msgid "level"
 msgstr "Stufe"
 
-#: documents/models.py:625
+#: documents/models.py:633
 msgid "created"
 msgstr "Erzeugt"
 
-#: documents/models.py:637
+#: documents/models.py:645
 msgid "log"
 msgstr "Protokoll"
 
-#: documents/models.py:638
+#: documents/models.py:646
 msgid "logs"
 msgstr "Protokolle"
+
+#: documents/templates/admin/base_site.html:91
+msgid "Version"
+msgstr "Version"
 
 #: documents/templates/admin/documents/correspondent/change_list.html:9
 msgid "Apply correspondents to all documents in database"
 msgstr "Alle Absender in der Datenbank anwenden"
+
+#: documents/templates/admin/documents/document/change_form.html:16
+msgid "Save and edit next"
+msgstr "Speichern und weiter zum nächsten"
 
 #: documents/templates/admin/documents/document/change_list_results.html:136
 msgid "Remove from sorting"
@@ -276,11 +284,11 @@ msgstr "Nichts verfügbar"
 msgid "Unknown content"
 msgstr "Unbekannter Inhalt"
 
-#: paperless/settings.py:218
+#: paperless/settings.py:244
 msgid "English"
 msgstr "Englisch"
 
-#: paperless/settings.py:219
+#: paperless/settings.py:245
 msgid "German"
 msgstr "Deutsch"
 
