@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "<2.1,>=2.0"
+django = ">=2.2,<2.3"
 pillow = "*"
 coveralls = "*"
 dateparser = "*"
@@ -15,7 +15,6 @@ django-filter = "*"
 djangorestframework = "*"
 factory-boy = "*"
 filemagic = "*"
-fuzzywuzzy = {extras = ["speedup"],version = "==0.15.0"}
 gunicorn = "*"
 inotify-simple = "*"
 langdetect = "*"
@@ -41,3 +40,8 @@ brotli = "*"
 
 [dev-packages]
 ipython = "*"
+pylint = "*"
+
+[packages.fuzzywuzzy]
+extras = [ "speedup",]
+version = "==0.15.0"
