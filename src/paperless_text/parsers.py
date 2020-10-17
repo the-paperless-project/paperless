@@ -53,8 +53,14 @@ class TextDocumentParser(DocumentParser):
 
         def read_text():
             with open(self.document_path, 'r') as src:
-                lines = [l.strip() for l in src.readlines()]
-                text = "\n".join([l for l in lines[:n_lines]])
+                lines = []
+                count = 0
+                for line in src:
+                    if count >= n_lines:
+                        break
+                    count += 1
+                    lines.append(line.strip())
+                text = "\n".join(lines)
                 return text.replace('"', "'")
 
         def create_txlayer():
