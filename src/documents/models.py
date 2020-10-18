@@ -276,7 +276,7 @@ class Document(models.Model):
             return "{}: {}".format(created, self.correspondent or self.title)
         return str(created)
 
-    def find_renamed_document(self, subdirectory=""):
+    def find_renamed_document(self):
         suffix = "%07i.%s" % (self.pk, self.file_type)
 
         # Append .gpg for encrypted files
@@ -284,15 +284,13 @@ class Document(models.Model):
             suffix += ".gpg"
 
         # Go up in the directory hierarchy and try to delete all directories
-        root = os.path.normpath(Document.filename_to_path(subdirectory))
+        basePath = os.path.normpath(Document.filename_to_path(""))
 
-        for filename in os.listdir(root):
-            if filename.endswith(suffix):
-                return os.path.join(subdirectory, filename)
-
-            fullname = os.path.join(subdirectory, filename)
-            if os.path.isdir(Document.filename_to_path(fullname)):
-                return self.find_renamed_document(fullname)
+        for root, dirnames, filenames in os.walk(basePath):
+            for filename in filenames:
+                if filename.endswith(suffix):
+                    fullPath = os.path.join(root, filename)
+                    return os.path.relpath(fullPath, basePath)
 
         return None
 
