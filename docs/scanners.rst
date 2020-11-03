@@ -8,6 +8,9 @@ scanner you use, but sometimes finding a scanner that will write to an FTP,
 NFS, or SMB server can be difficult.  This page is here to help you find one
 that works right for you based on recommentations from other Paperless users.
 
+Physical scanners
+-----------------
+
 +---------+----------------+-----+-----+-----+----------------+
 | Brand   | Model          | Supports        | Recommended By |
 +---------+----------------+-----+-----+-----+----------------+
@@ -36,3 +39,20 @@ that works right for you based on recommentations from other Paperless users.
 .. _eonist: https://github.com/eonist
 .. _REOLDEV: https://github.com/REOLDEV
 
+Mobile phone software
+-----------------------
+
+You can use your phone to "scan" documents. The regular camera app will work, but may have too low contrast for OCR to work well. Apps specifically for scanning are recommended.
+
++-------------------+----------------+-----+-----+-----+-------+--------+----------------+
+| Name              | OS             | Supports                         | Recommended By |
++-------------------+----------------+-----+-----+-----+-------+--------+----------------+
+|                   |                | FTP | NFS | SMB | Email | WebDav |                |
++===================+================+=====+=====+=====+=======+========+================+
+| `Genius Scan`_    | Android        | yes | no  | yes | yes   | yes    | `hannahswain`_ |
++-------------------+----------------+-----+-----+-----+-------+--------+----------------+
+
+
+.. _Genius Scan: https://play.google.com/store/apps/details?id=com.thegrizzlylabs.geniusscan.free
+
+.. _hannahswain: https://github.com/hannahswain
