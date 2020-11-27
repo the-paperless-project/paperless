@@ -27,6 +27,7 @@ from documents.actions import (
 
 from .models import Correspondent, Document, Log, Tag
 
+from .views import DocumentAddView
 
 class FinancialYearFilter(admin.SimpleListFilter):
 
@@ -242,14 +243,14 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         remove_correspondent_from_selected
     ]
 
+    def add_view(self, request, form_url='', extra_context=None):
+        return DocumentAddView.as_view()(request)
+    
     date_hierarchy = "created"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.document_queue = []
-
-    def has_add_permission(self, request):
-        return False
 
     def created_(self, obj):
         return obj.created.date().strftime("%Y-%m-%d")

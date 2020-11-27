@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-04 16:49+0000\n"
+"POT-Creation-Date: 2020-11-27 15:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,7 +42,8 @@ msgstr "Absender für mehrere Dokumente setzen"
 
 #: documents/actions.py:124
 #, python-format
-msgid "Successfully set correspondent %(selected_object)s on %(count)d %(items)s."
+msgid ""
+"Successfully set correspondent %(selected_object)s on %(count)d %(items)s."
 msgstr "Absender %(selected_object)s für %(count)d %(items)s gesetzt."
 
 #: documents/actions.py:135
@@ -70,27 +71,27 @@ msgstr "Absender für ausgewählte Dokumente setzen"
 msgid "Remove correspondent from selected documents"
 msgstr "Absender von ausgewählten Dokumenten entfernen"
 
-#: documents/admin.py:148 documents/admin.py:199
+#: documents/admin.py:149 documents/admin.py:200
 msgid "document_count"
 msgstr "Anzahl der Dokumente"
 
-#: documents/admin.py:153
+#: documents/admin.py:154
 msgid "last_correspondence"
 msgstr "Letzter Kontakt"
 
-#: documents/admin.py:171
+#: documents/admin.py:172
 msgid "Currently known correspondents were applied."
 msgstr "Absender wurden aktualisiert."
 
-#: documents/admin.py:212
+#: documents/admin.py:213
 msgid "Currently known tags were applied."
 msgstr "Derzeit bekannte Schlüsselwörter wurden angewendet."
 
-#: documents/admin.py:366
+#: documents/admin.py:367
 msgid "{} pages"
 msgstr "{} Seiten"
 
-#: documents/admin.py:368
+#: documents/admin.py:369
 msgid "{} page"
 msgstr "{} Seite"
 
@@ -222,6 +223,30 @@ msgstr "Version"
 msgid "Apply correspondents to all documents in database"
 msgstr "Alle Absender in der Datenbank anwenden"
 
+#: documents/templates/admin/documents/document/add_form.html:18
+msgid "Upload documents"
+msgstr "Dokumente importieren"
+
+#: documents/templates/admin/documents/document/add_form.html:26
+msgid "Correspondent:"
+msgstr "Absender:"
+
+#: documents/templates/admin/documents/document/add_form.html:33
+msgid "Title:"
+msgstr "Titel:"
+
+#: documents/templates/admin/documents/document/add_form.html:40
+msgid "Document(s):"
+msgstr "Dokument(e):"
+
+#: documents/templates/admin/documents/document/add_form.html:45
+msgid ""
+"You can give correspondent and/or title otherwise they can be set later. "
+"Acceptable file formats: PDF, PNG, JPEG, TIFF, GIF"
+msgstr ""
+"Absender und/oder Titel können hier vorgegeben und später noch geändert "
+"werden. Akzeptierte Dateiformate: PDF, PNG, JPEG, TIFF, GIF"
+
 #: documents/templates/admin/documents/document/change_form.html:16
 msgid "Save and edit next"
 msgstr "Speichern und weiter zum nächsten"
@@ -284,11 +309,19 @@ msgstr "Nichts verfügbar"
 msgid "Unknown content"
 msgstr "Unbekannter Inhalt"
 
-#: paperless/settings.py:244
+#: documents/views.py:168
+msgid "File upload successful"
+msgstr "Datei zur Verarbeitung akzeptiert"
+
+#: documents/views.py:171
+msgid "File upload failed"
+msgstr "Datei konnte nicht akzeptiert werden"
+
+#: paperless/settings.py:245
 msgid "English"
 msgstr "Englisch"
 
-#: paperless/settings.py:245
+#: paperless/settings.py:246
 msgid "German"
 msgstr "Deutsch"
 
