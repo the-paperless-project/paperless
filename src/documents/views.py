@@ -150,6 +150,7 @@ class LogViewSet(ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     ordering_fields = ("time",)
 
+
 class DocumentAddView(SessionOrBasicAuthMixin, FormView):
 
     form_class = UploadForm
@@ -160,7 +161,7 @@ class DocumentAddView(SessionOrBasicAuthMixin, FormView):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         files = request.FILES.getlist('document')
-        
+
         if form.is_valid():
             form.save()
             messages.success(request, _('File upload successful'))

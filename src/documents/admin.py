@@ -29,6 +29,7 @@ from .models import Correspondent, Document, Log, Tag
 
 from .views import DocumentAddView
 
+
 class FinancialYearFilter(admin.SimpleListFilter):
 
     title = "Financial Year"
@@ -245,7 +246,7 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         return DocumentAddView.as_view()(request)
-    
+
     date_hierarchy = "created"
 
     def __init__(self, *args, **kwargs):
