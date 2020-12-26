@@ -285,4 +285,4 @@ def get_text_from_pdf(pdf_file):
         except pdftotext.Error:
             return ""
 
-    return "\n".join(pdf)
+    return "\n".join(pdf).strip()
