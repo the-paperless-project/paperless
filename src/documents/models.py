@@ -13,6 +13,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.translation import ugettext_lazy as _
 from fuzzywuzzy import fuzz
 from collections import defaultdict
 
@@ -42,7 +43,12 @@ class MatchingModel(models.Model):
     name = models.CharField(max_length=128, unique=True)
     slug = models.SlugField(blank=True, editable=False)
 
-    match = models.CharField(max_length=256, blank=True)
+    match = models.CharField(
+        max_length=256,
+        blank=True,
+        verbose_name=_('match')
+    )
+
     matching_algorithm = models.PositiveIntegerField(
         choices=MATCHING_ALGORITHMS,
         default=MATCH_ANY,
@@ -58,10 +64,14 @@ class MatchingModel(models.Model):
             "match\" looks for words or phrases that are mostly—but not "
             "exactly—the same, which can be useful for matching against "
             "documents containg imperfections that foil accurate OCR."
-        )
+        ),
+        verbose_name=_('matching algorithm')
     )
 
-    is_insensitive = models.BooleanField(default=True)
+    is_insensitive = models.BooleanField(
+        default=True,
+        verbose_name=_('is_sensitive')
+    )
 
     class Meta:
         abstract = True
@@ -163,6 +173,8 @@ class Correspondent(MatchingModel):
 
     class Meta:
         ordering = ("name",)
+        verbose_name = _('correspondent')
+        verbose_name_plural = _('correspondents')
 
 
 class Tag(MatchingModel):
@@ -183,7 +195,15 @@ class Tag(MatchingModel):
         (13, "#cccccc")
     )
 
-    colour = models.PositiveIntegerField(choices=COLOURS, default=1)
+    colour = models.PositiveIntegerField(
+        choices=COLOURS,
+        default=1,
+        verbose_name=_('colour')
+    )
+
+    class Meta:
+        verbose_name = _('tag')
+        verbose_name_plural = _('tags')
 
 
 class Document(models.Model):
@@ -211,26 +231,37 @@ class Document(models.Model):
         blank=True,
         null=True,
         related_name="documents",
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        verbose_name=_('correspondent')
     )
 
-    title = models.CharField(max_length=128, blank=True, db_index=True)
+    title = models.CharField(
+        max_length=128,
+        blank=True,
+        db_index=True,
+        verbose_name=_('title'))
 
     content = models.TextField(
         db_index=True,
         blank=True,
         help_text="The raw, text-only data of the document.  This field is "
-                  "primarily used for searching."
+                  "primarily used for searching.",
+        verbose_name=_('content')
     )
 
     file_type = models.CharField(
         max_length=4,
         editable=False,
-        choices=tuple([(t, t.upper()) for t in TYPES])
+        choices=tuple([(t, t.upper()) for t in TYPES]),
+        verbose_name=_('filetype')
     )
 
     tags = models.ManyToManyField(
-        Tag, related_name="documents", blank=True)
+        Tag,
+        related_name="documents",
+        blank=True,
+        verbose_name=_('tags')
+    )
 
     checksum = models.CharField(
         max_length=32,
@@ -238,34 +269,57 @@ class Document(models.Model):
         unique=True,
         help_text="The checksum of the original document (before it was "
                   "encrypted).  We use this to prevent duplicate document "
-                  "imports."
+                  "imports.",
+        verbose_name=_('checksum')
     )
 
-    created = models.DateTimeField(
-        default=timezone.now, db_index=True)
+    created = models.DateField(
+        default=timezone.now,
+        db_index=True,
+        verbose_name=_('documentcreated')
+    )
+
     modified = models.DateTimeField(
-        auto_now=True, editable=False, db_index=True)
+        auto_now=True,
+        editable=False,
+        db_index=True,
+        verbose_name=_('modified')
+    )
 
     storage_type = models.CharField(
         max_length=11,
         choices=STORAGE_TYPES,
         default=STORAGE_TYPE_UNENCRYPTED,
-        editable=False
+        editable=False,
+        verbose_name=_('storagetype')
     )
 
     added = models.DateTimeField(
-        default=timezone.now, editable=False, db_index=True)
+        default=timezone.now,
+        editable=False,
+        db_index=True,
+        verbose_name=_('added'))
 
     filename = models.FilePathField(
         max_length=256,
         editable=False,
         default=None,
         null=True,
-        help_text="Current filename in storage"
+        help_text="Current filename in storage",
+        verbose_name=_('filename')
+    )
+
+    pages = models.IntegerField(
+        editable=False,
+        default=1,
+        help_text="Number of pages",
+        verbose_name=_('pagecount')
     )
 
     class Meta:
         ordering = ("correspondent", "title")
+        verbose_name = _('document')
+        verbose_name_plural = _('documents')
 
     def __str__(self):
         created = self.created.strftime("%Y%m%d%H%M%S")
@@ -302,25 +356,6 @@ class Document(models.Model):
         if self.filename is None:
             self.filename = self.generate_source_filename()
 
-        # Check if document is still available under filename
-        elif not os.path.isfile(Document.filename_to_path(self.filename)):
-            recovered_filename = self.find_renamed_document()
-
-            # If we have found the file so update the filename
-            if recovered_filename is not None:
-                logger = logging.getLogger(__name__)
-                logger.warning("Filename of document " + str(self.id) +
-                               " has changed and was successfully updated")
-                self.filename = recovered_filename
-
-                # Remove all empty subdirectories from MEDIA_ROOT
-                Document.delete_all_empty_subdirectories(
-                        Document.filename_to_path(""))
-            else:
-                logger = logging.getLogger(__name__)
-                logger.error("File of document " + str(self.id) + " has " +
-                             "gone and could not be recovered")
-
         return self.filename
 
     @staticmethod
@@ -355,11 +390,11 @@ class Document(models.Model):
             tags = defaultdict(lambda: slugify(None),
                                self.many_to_dictionary(self.tags))
             path = settings.PAPERLESS_FILENAME_FORMAT.format(
-                   correspondent=slugify(self.correspondent),
-                   title=slugify(self.title),
-                   created=slugify(self.created),
-                   added=slugify(self.added),
-                   tags=tags)
+                correspondent=slugify(self.correspondent),
+                title=slugify(self.title),
+                created=slugify(self.created),
+                added=slugify(self.added),
+                tags=tags)
         else:
             path = ""
 
@@ -382,7 +417,11 @@ class Document(models.Model):
         dir_new = Document.filename_to_path(os.path.dirname(new_filename))
 
         # Create new path
-        os.makedirs(dir_new, exist_ok=True)
+        try:
+            os.makedirs(dir_new, exist_ok=True)
+        except OSError as e:
+            logger = logging.getLogger(__name__)
+            logger.error("Failed to create directory {}".format(e))
 
     @property
     def source_path(self):
@@ -436,45 +475,32 @@ class Document(models.Model):
             self.filename = filename
 
     @staticmethod
-    def try_delete_empty_directories(directory):
-        # Go up in the directory hierarchy and try to delete all directories
-        directory = os.path.normpath(directory)
-        root = os.path.normpath(Document.filename_to_path(""))
-
-        while directory != root:
-            # Try to delete the current directory
-            try:
-                os.rmdir(directory)
-            except os.error:
-                # Directory not empty, no need to go further up
-                return
-
-            # Cut off actual directory and go one level up
-            directory, _ = os.path.split(directory)
-            directory = os.path.normpath(directory)
-
-    @staticmethod
     def delete_all_empty_subdirectories(directory):
-        # Go through all folders and try to delete all directories
-        root = os.path.normpath(Document.filename_to_path(directory))
+        'Function to recursively remove empty folders starting'
+        'in directory'
+        path = os.path.normpath(directory)
+        not_empty = 0
 
-        for filename in os.listdir(root):
-            fullname = os.path.join(directory, filename)
+        try:
+            files = os.listdir(path)
+        except os.error:
+            return 1
 
-            if not os.path.isdir(Document.filename_to_path(fullname)):
-                continue
+        for f in files:
+            next_path = os.path.join(path, f)
+            if os.path.isdir(next_path):
+                if 0 == Document.delete_all_empty_subdirectories(next_path):
+                    # if folder empty, delete it
+                    try:
+                        os.rmdir(next_path)
+                    except os.error:
+                        not_empty += 1
+                else:
+                    not_empty += 1
+            else:
+                not_empty += 1
 
-            # Go into subdirectory to see, if there is more to delete
-            Document.delete_all_empty_subdirectories(
-                    os.path.join(directory, filename))
-
-            # Try to delete the directory
-            try:
-                os.rmdir(Document.filename_to_path(fullname))
-                continue
-            except os.error:
-                # Directory not empty, no need to go further up
-                continue
+        return not_empty
 
 
 @receiver(models.signals.m2m_changed, sender=Document.tags.through)
@@ -517,10 +543,10 @@ def update_filename(sender, instance, **kwargs):
                      "as file " + instance.filename + " was no longer present")
         return
 
-    # Delete empty directory
-    old_dir = os.path.dirname(instance.filename)
-    old_path = instance.filename_to_path(old_dir)
-    Document.try_delete_empty_directories(old_path)
+    # Delete empty directory for cleanup
+    Document.delete_all_empty_subdirectories(
+        os.path.join(settings.MEDIA_ROOT, "documents", "originals")
+    )
 
     instance.filename = new_filename
 
@@ -528,6 +554,37 @@ def update_filename(sender, instance, **kwargs):
     # This will not cause a cascade of post_save signals, as next time
     # nothing needs to be renamed
     instance.save()
+
+
+@receiver(models.signals.post_init, sender=Document)
+@receiver(models.signals.pre_save, sender=Document)
+def check_if_file_is_present(sender, instance, **kwargs):
+    # Skip if document has not been saved yet
+    if instance.filename is None:
+        return
+
+    # Check if document is still available under filename
+    if not os.path.isfile(Document.filename_to_path(instance.filename)):
+        recovered_filename = instance.find_renamed_document()
+
+        # If we have found the file so update the filename
+        if recovered_filename is not None:
+            logger = logging.getLogger(__name__)
+            logger.warning("Filename of document " + str(instance.id) +
+                           " has changed and was successfully updated")
+            instance.filename = recovered_filename
+            instance.save()
+
+            # Remove all empty subdirectories
+            Document.delete_all_empty_subdirectories(
+                os.path.join(settings.MEDIA_ROOT, "documents", "originals")
+            )
+
+        else:
+            logger = logging.getLogger(__name__)
+            logger.error("File of document " + str(instance.id) +
+                         " not found. Good luck restoring a backup"
+                         " or searching manually!")
 
 
 @receiver(models.signals.post_delete, sender=Document)
@@ -546,31 +603,47 @@ def delete_files(sender, instance, **kwargs):
                        old_file + " was no longer present")
 
     # And remove the directory (if applicable)
-    old_dir = os.path.dirname(instance.filename)
-    old_path = instance.filename_to_path(old_dir)
-    Document.try_delete_empty_directories(old_path)
+    Document.delete_all_empty_subdirectories(
+        os.path.join(settings.MEDIA_ROOT, "documents", "originals")
+    )
 
 
 class Log(models.Model):
 
     LEVELS = (
-        (logging.DEBUG, "Debugging"),
-        (logging.INFO, "Informational"),
-        (logging.WARNING, "Warning"),
-        (logging.ERROR, "Error"),
-        (logging.CRITICAL, "Critical"),
+        (logging.DEBUG, _("Debugging")),
+        (logging.INFO, _("Informational")),
+        (logging.WARNING, _("Warning")),
+        (logging.ERROR, _("Error")),
+        (logging.CRITICAL, _("Critical")),
     )
 
     group = models.UUIDField(blank=True)
-    message = models.TextField()
-    level = models.PositiveIntegerField(choices=LEVELS, default=logging.INFO)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
+
+    message = models.TextField(verbose_name=_('message'))
+
+    level = models.PositiveIntegerField(
+        choices=LEVELS,
+        default=logging.INFO,
+        verbose_name=_('level')
+    )
+
+    created = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('created')
+    )
+
+    modified = models.DateTimeField(
+        auto_now=True,
+        verbose_name=_('modified')
+    )
 
     objects = LogManager()
 
     class Meta:
         ordering = ("-modified",)
+        verbose_name = _('log')
+        verbose_name_plural = _('logs')
 
     def __str__(self):
         return self.message

@@ -1,5 +1,7 @@
 {% extends 'admin/change_form.html' %}
 
+{% load i18n %}
+
 {% block content %}
 
 {{ block.super }}
@@ -11,7 +13,7 @@
 {% if next_object %}
 	<script type="text/javascript">//<![CDATA[
 		(function($){
-			$('<input type="submit" value="Save and edit next" name="_saveandeditnext" />')
+			$('<input type="submit" value="{% trans "Save and edit next" %}" name="_saveandeditnext" />')
 			.prependTo('div.submit-row');
 			$('<input type="hidden" value="{{next_object}}" name="_next_object" />')
 			.prependTo('div.submit-row');
@@ -51,14 +53,3 @@
 }
 </style>
 {% endblock %}
-
-{% block footer %}
-
-	{{ block.super }}
-
-	{# Hack to force Django to make the created date a date input rather than `text` (the default) #}
-	<script>
-		django.jQuery(".field-created input").first().attr("type", "date")
-	</script>
-
-{% endblock footer %}

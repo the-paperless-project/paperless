@@ -6,7 +6,7 @@
 {% load static %}
 {% load custom_css from customisation %}
 {% load custom_js from customisation %}
-
+{% load i18n %}
 
 {% block extrahead %}
 	<link rel="icon" type="image/x-icon" href="{% url 'favicon' %}" />
@@ -49,6 +49,12 @@
 		.inline-group h2 {
 			background-color: #077187;
 		}
+		.footer {
+			position: absolute;
+			padding-left: 40px;
+			bottom: 10px;
+			color: dimgrey;
+		}
 	</style>
 {% endblock %}
 
@@ -80,6 +86,9 @@
 
 
 {% block footer %}
+	<div class="footer">
+		{% trans 'Version' %}: {{ APP_VERSION_NUMBER }}
+	</div>
 
 	{% comment %}
 		The Django admin doesn't have a block for Javascript you'd want placed in

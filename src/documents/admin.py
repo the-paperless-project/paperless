@@ -12,6 +12,11 @@ from django.utils.html import format_html, format_html_join
 from django.utils.http import urlquote
 from django.utils.safestring import mark_safe
 from djangoql.admin import DjangoQLSearchMixin
+from django.urls import path
+from django.utils.translation import ugettext_lazy as _
+from django_admin_listfilter_dropdown.filters import (
+    DropdownFilter, ChoiceDropdownFilter, RelatedDropdownFilter
+)
 
 from documents.actions import (
     add_tag_to_selected,
@@ -21,6 +26,8 @@ from documents.actions import (
 )
 
 from .models import Correspondent, Document, Log, Tag
+
+from .views import DocumentAddView
 
 
 class FinancialYearFilter(admin.SimpleListFilter):
@@ -127,6 +134,8 @@ class CorrespondentAdmin(CommonAdmin):
 
     readonly_fields = ("slug",)
 
+    change_list_template = "admin/documents/correspondent/change_list.html"
+
     def get_queryset(self, request):
         qs = super(CorrespondentAdmin, self).get_queryset(request)
         qs = qs.annotate(
@@ -138,10 +147,31 @@ class CorrespondentAdmin(CommonAdmin):
     def document_count(self, obj):
         return obj.document_count
     document_count.admin_order_field = "document_count"
+    document_count.verbose_name = _("document_count")
 
     def last_correspondence(self, obj):
         return obj.last_correspondence
     last_correspondence.admin_order_field = "last_correspondence"
+    last_correspondence.verbose_name = _("last_correspondence")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('reassign/', self.do_reassign),
+        ]
+        return my_urls + urls
+
+    def do_reassign(self, request):
+        # do the command here
+        from django.core import management
+        management.call_command(
+            'document_correspondents',
+            verbosity=1,
+            use_first=True)
+        self.message_user(
+            request,
+            _("Currently known correspondents were applied."))
+        return HttpResponseRedirect("../")
 
 
 class TagAdmin(CommonAdmin):
@@ -153,8 +183,12 @@ class TagAdmin(CommonAdmin):
 
     readonly_fields = ("slug",)
 
+    change_list_template = "admin/documents/tag/change_list.html"
+
     class Media:
-        js = ("js/colours.js",)
+        js = (
+            "js/jquery.min.js",  # jquery
+            "js/colours.js",)
 
     def get_queryset(self, request):
         qs = super(TagAdmin, self).get_queryset(request)
@@ -164,6 +198,21 @@ class TagAdmin(CommonAdmin):
     def document_count(self, obj):
         return obj.document_count
     document_count.admin_order_field = "document_count"
+    document_count.verbose_name = _("document_count")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('retag/', self.do_retag),
+        ]
+        return my_urls + urls
+
+    def do_retag(self, request):
+        # do the command here
+        from django.core import management
+        management.call_command('document_retagger', verbosity=1)
+        self.message_user(request, _("Currently known tags were applied."))
+        return HttpResponseRedirect("../")
 
 
 class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
@@ -174,12 +223,13 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         }
 
     search_fields = ("correspondent__name", "title", "content", "tags__name")
-    readonly_fields = ("added", "file_type", "storage_type",)
+    readonly_fields = ("added", "file_type", "storage_type", "checksum")
     list_display = ("title", "created", "added", "thumbnail", "correspondent",
-                    "tags_")
+                    "tags_", "pages_")
     list_filter = (
-        "tags",
+        ("tags", RelatedDropdownFilter),
         ("correspondent", RecentCorrespondentFilter),
+        "added",
         FinancialYearFilter
     )
 
@@ -194,14 +244,14 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
         remove_correspondent_from_selected
     ]
 
+    def add_view(self, request, form_url='', extra_context=None):
+        return DocumentAddView.as_view()(request)
+
     date_hierarchy = "created"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.document_queue = []
-
-    def has_add_permission(self, request):
-        return False
 
     def created_(self, obj):
         return obj.created.date().strftime("%Y-%m-%d")
@@ -311,6 +361,22 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
                 }
             )
         return r
+
+    @mark_safe
+    def pages_(self, obj):
+        if obj.pages > 1:
+            text = _('{} pages').format(obj.pages)
+        elif obj.pages == 1:
+            text = _('{} page').format(obj.pages)
+        else:
+            text = ''
+
+        return self._html_tag(
+            "a",
+            text,
+            **{
+                "class": "pages"
+            })
 
     @mark_safe
     def document(self, obj):

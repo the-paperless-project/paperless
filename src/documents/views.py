@@ -3,6 +3,8 @@ from django.views.generic import DetailView, FormView, TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.conf import settings
 from django.utils import cache
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
 
 from paperless.db import GnuPG
 from paperless.mixins import SessionOrBasicAuthMixin
@@ -147,3 +149,23 @@ class LogViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     ordering_fields = ("time",)
+
+
+class DocumentAddView(SessionOrBasicAuthMixin, FormView):
+
+    form_class = UploadForm
+    template_name = 'admin/documents/document/add_form.html'
+    success_url = '/admin/documents/document/add/'
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        files = request.FILES.getlist('document')
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, _('File upload successful'))
+            return self.form_valid(form)
+        else:
+            messages.error(request, _('File upload failed'))
+            return self.form_invalid(form)

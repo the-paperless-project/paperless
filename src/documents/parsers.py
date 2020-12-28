@@ -45,10 +45,16 @@ class DocumentParser:
     OPTIPNG = settings.OPTIPNG_BINARY
 
     def __init__(self, path):
+        """ original document """
         self.document_path = path
+        """ maybe transformed document, which is imported """
+        self.archive_path = path
         self.tempdir = tempfile.mkdtemp(prefix="paperless-", dir=self.SCRATCH)
         self.logger = logging.getLogger(__name__)
         self.logging_group = None
+
+    def get_archive_docname(self):
+        return self.archive_path
 
     def get_thumbnail(self):
         """
@@ -60,7 +66,7 @@ class DocumentParser:
 
         out_path = os.path.join(self.tempdir, "optipng.png")
 
-        args = (self.OPTIPNG, "-o5", in_path, "-out", out_path)
+        args = (self.OPTIPNG, "-o5", "-quiet", in_path, "-out", out_path)
         if not subprocess.Popen(args).wait() == 0:
             raise ParseError("Optipng failed at {}".format(args))
 
@@ -74,6 +80,12 @@ class DocumentParser:
         Returns the text from the document and only the text.
         """
         raise NotImplementedError()
+
+    def get_pagecount(self):
+        """
+        Returns the pagecount.
+        """
+        return 1
 
     def get_date(self):
         """

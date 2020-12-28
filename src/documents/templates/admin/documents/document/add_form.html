@@ -1,0 +1,56 @@
+{% extends "admin/change_form.html" %}
+
+
+{% load i18n l10n admin_urls static %}
+{% load staticfiles %}
+
+
+{% block extrahead %}
+	{{ block.super }}
+	{{ media }}
+	<script type="text/javascript" src="{% static 'admin/js/cancel.js' %}"></script>
+{% endblock %}
+
+{% block bodyclass %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+   <h3>{% trans 'Upload documents' %}</h3>
+
+	<form id="upload" method="post" action="{{ form_url }}" enctype="multipart/form-data">
+		{% csrf_token %}
+
+		<fieldset class="module aligned ">
+        	<div class="form-row field-correspondent">
+                <div>
+                        <label for="id_correspondent">{% trans 'Correspondent:' %}</label>
+                        <input type="text" name="correspondent" class="vTextField" maxlength="128" id="id_correspondent">
+                </div>
+        	</div>
+    
+        	<div class="form-row field-title">
+                <div>
+                    <label for="id_title">{% trans 'Title:' %}</label>
+                    <input type="text" name="title" class="vTextField" maxlength="128" id="id_title">
+                </div>
+        	</div>
+    
+            <div class="form-row field-document">
+				<div>
+					<label class="required" for="id_document">{% trans 'Document(s):' %}</label>
+                	<input type="file" size="40" name="document" multiple>
+                </div>
+            </div>  
+                    
+            <div class="help">{% trans  'You can give correspondent and/or title otherwise they can be set later. Acceptable file formats: PDF, PNG, JPEG, TIFF, GIF' %}</div>
+
+			<div class="form-row field-submit">
+				<div>
+                	<input type="submit" name="Upload">
+                </div>
+            </div>  
+		</fieldset>	
+    </form>
+{% endblock %}
+
+

@@ -6,6 +6,7 @@ import os
 import re
 import time
 import uuid
+import shutil
 
 from operator import itemgetter
 from django.conf import settings
@@ -35,19 +36,25 @@ class Consumer:
       5. Delete the document and image(s)
     """
 
-    # Files are considered ready for consumption if they have been unmodified
-    # for this duration
-    FILES_MIN_UNMODIFIED_DURATION = 0.5
-
     def __init__(self, consume=settings.CONSUMPTION_DIR,
-                 scratch=settings.SCRATCH_DIR):
+                 scratch=settings.SCRATCH_DIR,
+                 move=settings.CONSUMER_MOVES):
 
         self.logger = logging.getLogger(__name__)
         self.logging_group = None
 
         self._ignore = []
+        self._files = []
         self.consume = consume
         self.scratch = scratch
+        self.move = move
+
+        self.processed = os.path.join(consume, "processed")
+        self.ignored = os.path.join(consume, "ignored")
+        self.duplicate = os.path.join(consume, "duplicate")
+
+        """ ignore all dot-files """
+        self.ABSOLUTELY_IGNORED_FILES = re.compile(r"^\.+[^\/]*$")
 
         os.makedirs(self.scratch, exist_ok=True)
 
@@ -64,6 +71,11 @@ class Consumer:
         if not os.path.exists(self.consume):
             raise ConsumerError(
                 "Consumption directory {} does not exist".format(self.consume))
+
+        if self.move:
+            os.makedirs(self.processed, exist_ok=True)
+            os.makedirs(self.ignored, exist_ok=True)
+            os.makedirs(self.duplicate, exist_ok=True)
 
         self.parsers = []
         for response in document_consumer_declaration.send(self):
@@ -83,67 +95,110 @@ class Consumer:
     def consume_new_files(self):
         """
         Find non-ignored files in consumption dir and consume them if they have
-        been unmodified for FILES_MIN_UNMODIFIED_DURATION.
+        been constant in size for FILES_MIN_UNMODIFIED_DURATION.
         """
         ignored_files = []
-        files = []
+        candidate_files = []
+        remaining_files = []
+
         for entry in os.scandir(self.consume):
-            if entry.is_file():
-                file = (entry.path, entry.stat().st_mtime)
-                if file in self._ignore:
-                    ignored_files.append(file)
-                else:
-                    files.append(file)
-            else:
+            # Silently skip well-known names without warning
+            if (entry.path == self.processed or
+                    entry.path == self.ignored or
+                    entry.path == self.duplicate):
+                continue
+
+            if not entry.is_file():
                 self.logger.warning(
-                    "Skipping %s as it is not a file",
-                    entry.path
-                )
+                    "Skipping {} as it is not a file".
+                    format(entry.path))
+                continue
 
-        if not files:
-            return
+            if self.ABSOLUTELY_IGNORED_FILES.match(entry.name):
+                continue
 
-        # Set _ignore to only include files that still exist.
+            file = (entry.path, os.path.getmtime(entry.path),
+                    os.path.getsize(entry.path))
+
+            # skip zero length files, maybe a copy in progress
+            if file[2] == 0:
+                continue
+
+            if file in self._ignore:
+                ignored_files.append(file)
+                if self.move:
+                    self.logger.info(
+                        "Moving '%s' to '%s': file is ignored.",
+                        entry.path,
+                        self.ignored)
+                    self._safe_move(entry.path, self.ignored)
+            elif file in self._files:
+                # this means no changes in name, mtime and size from last check
+                candidate_files.append(file)
+            else:
+                # file was changed or is new compared to last run
+                self.logger.info("New or changing file: {}".format(entry.path))
+                remaining_files.append(file)
+
+        # Set _ignore and _files to only include files that still exist.
         # This keeps it from growing indefinitely.
         self._ignore[:] = ignored_files
+        self._files[:] = remaining_files
 
-        files_old_to_new = sorted(files, key=itemgetter(1))
+        candidate_files.sort(key=itemgetter(1))
 
-        time.sleep(self.FILES_MIN_UNMODIFIED_DURATION)
+        for cfile in candidate_files:
+            self.logger.info(
+                "Candidate file: {}, {} Byte".
+                format(cfile[0], cfile[2]))
+            if not self.try_consume_file(cfile[0]):
+                self._ignore.append(cfile)
 
-        for file, mtime in files_old_to_new:
-            if mtime == os.path.getmtime(file):
-                # File has not been modified and can be consumed
-                if not self.try_consume_file(file):
-                    self._ignore.append((file, mtime))
-
-    @transaction.atomic
     def try_consume_file(self, file):
         """
         Return True if file was consumed
         """
+
+        # function is called directly via inotify watcher, so this
+        # check is needed here again
+        if self.ABSOLUTELY_IGNORED_FILES.match(file):
+            return False
 
         if not re.match(FileInfo.REGEXES["title"], file):
             return False
 
         doc = file
 
-        if self._is_duplicate(doc):
-            self.log(
-                "info",
-                "Skipping {} as it appears to be a duplicate".format(doc)
-            )
+        """
+        We calculate the checksum for the unmodified file!
+        So we can change the format while processing and
+        still can detect duplicates
+        """
+        with open(doc, "rb") as f:
+            original_checksum = hashlib.md5(f.read()).hexdigest()
+
+        if self._is_duplicate(original_checksum):
+            self.logger.info(
+                "Skipping {} as it appears to be a duplicate".
+                format(doc))
+
+            if self.move:
+                self.logger.info(
+                    "Moving '%s' to '%s': file is duplicate.",
+                    doc,
+                    self.duplicate)
+                self._safe_move(doc, self.duplicate)
+
             return False
 
         parser_class = self._get_parser_class(doc)
         if not parser_class:
-            self.log(
-                "error", "No parsers could be found for {}".format(doc))
+            self.logger.error("No parsers could be found for {}".format(doc))
             return False
 
         self.logging_group = uuid.uuid4()
 
-        self.log("info", "Consuming {}".format(doc))
+        self.logger.info("Consuming {}".format(doc))
 
         document_consumption_started.send(
             sender=self.__class__,
@@ -154,33 +209,32 @@ class Consumer:
         parsed_document = parser_class(doc)
 
         try:
-            thumbnail = parsed_document.get_optimised_thumbnail()
-            date = parsed_document.get_date()
             document = self._store(
                 parsed_document.get_text(),
-                doc,
-                thumbnail,
-                date
+                parsed_document.get_archive_docname(),
+                parsed_document.get_optimised_thumbnail(),
+                parsed_document.get_date(),
+                original_checksum,
+                parsed_document.get_pagecount()
             )
         except ParseError as e:
-            self.log("error", "PARSE FAILURE for {}: {}".format(doc, e))
+            self.logger.error("PARSE FAILURE for {}: {}".format(doc, e))
             parsed_document.cleanup()
             return False
         else:
             parsed_document.cleanup()
-            self._cleanup_doc(doc)
 
-            self.log(
-                "info",
-                "Document {} consumption finished".format(document)
-            )
+            self.logger.info(
+                "Document {} consumption finished".
+                format(document))
 
             document_consumption_finished.send(
                 sender=self.__class__,
                 document=document,
                 logging_group=self.logging_group
             )
-            return True
+
+            return self._cleanup_doc(doc)
 
     def _get_parser_class(self, doc):
         """
@@ -207,7 +261,8 @@ class Consumer:
         return sorted(
             options, key=lambda _: _["weight"], reverse=True)[0]["parser"]
 
-    def _store(self, text, doc, thumbnail, date):
+    @transaction.atomic
+    def _store(self, text, doc, thumbnail, date, checksum, pagecount):
 
         file_info = FileInfo.from_path(doc)
 
@@ -216,25 +271,27 @@ class Consumer:
         self.log("debug", "Saving record to database")
 
         created = file_info.created or date or timezone.make_aware(
-                    datetime.datetime.fromtimestamp(stats.st_mtime))
+            datetime.datetime.fromtimestamp(stats.st_mtime))
 
-        with open(doc, "rb") as f:
-            document = Document.objects.create(
-                correspondent=file_info.correspondent,
-                title=file_info.title,
-                content=text,
-                file_type=file_info.extension,
-                checksum=hashlib.md5(f.read()).hexdigest(),
-                created=created,
-                modified=created,
-                storage_type=self.storage_type
-            )
+        document = Document.objects.create(
+            correspondent=file_info.correspondent,
+            title=file_info.title,
+            content=text,
+            file_type=file_info.extension,
+            checksum=checksum,
+            created=created,
+            modified=created,
+            storage_type=self.storage_type,
+            pages=pagecount
+        )
 
         relevant_tags = set(list(Tag.match_all(text)) + list(file_info.tags))
         if relevant_tags:
             tag_names = ", ".join([t.slug for t in relevant_tags])
             self.log("debug", "Tagging with {}".format(tag_names))
             document.tags.add(*relevant_tags)
+
+        document.create_source_directory()
 
         self._write(document, doc, document.source_path)
         self._write(document, thumbnail, document.thumbnail_path)
@@ -256,11 +313,40 @@ class Consumer:
                 write_file.write(GnuPG.encrypted(read_file))
 
     def _cleanup_doc(self, doc):
-        self.log("debug", "Deleting document {}".format(doc))
-        os.unlink(doc)
+        if self.move:
+            self.log(
+                "debug",
+                "Moving document {} to {}".
+                format(doc, self.processed))
+            return self._safe_move(doc, self.processed)
+        else:
+            self.log("debug", "Deleting document {}".format(doc))
+            try:
+                os.unlink(doc)
+            except Exception:
+                return False
+            else:
+                return True
 
     @staticmethod
-    def _is_duplicate(doc):
-        with open(doc, "rb") as f:
-            checksum = hashlib.md5(f.read()).hexdigest()
+    def _is_duplicate(checksum):
         return Document.objects.filter(checksum=checksum).exists()
+
+    def _safe_move(self, src, dst):
+        try:
+            shutil.copy2(src, dst, follow_symlinks=False)
+            os.unlink(src)
+        except IOError as e:
+            self.log(
+                "info",
+                "Unable to move file {} to {} : {}".
+                format(src, dst, e))
+            return False
+        except PermissionError as e:
+            self.log("info", "{}".format(e))
+            return False
+        except Exception:
+            self.log("info", "Unknown error when moving file {}".format(src))
+            return False
+        else:
+            return True

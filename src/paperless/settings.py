@@ -16,12 +16,15 @@ import re
 
 from dotenv import load_dotenv
 
+from django.utils.translation import ugettext_lazy as _
 
 # Tap paperless.conf if it's available
 if os.path.exists("/etc/paperless.conf"):
     load_dotenv("/etc/paperless.conf")
 elif os.path.exists("/usr/local/etc/paperless.conf"):
     load_dotenv("/usr/local/etc/paperless.conf")
+elif os.path.exists("./paperless.conf"):
+    load_dotenv("./paperless.conf")
 
 
 def __get_boolean(key, default="NO"):
@@ -71,6 +74,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_admin_listfilter_dropdown",
+    "django_mysql",
 
     "corsheaders",
     "django_extensions",
@@ -80,6 +85,7 @@ INSTALLED_APPS = [
     "reminders.apps.RemindersConfig",
     "paperless_tesseract.apps.PaperlessTesseractConfig",
     "paperless_text.apps.PaperlessTextConfig",
+    "paperless_ocrmypdf.apps.PaperlessOcrmypdfConfig",
 
     "django.contrib.admin",
 
@@ -103,6 +109,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+]
+
+SILENCED_SYSTEM_CHECKS = [
+    'admin.E408',
 ]
 
 # Enable whitenoise compression and caching
@@ -129,6 +140,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
+                'paperless.context_processors.selected_settings',
             ],
         },
     },
@@ -153,18 +166,42 @@ DATABASES = {
     }
 }
 
+# if we want to use a 'real' database...
 if os.getenv("PAPERLESS_DBUSER"):
-    DATABASES["default"] = {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("PAPERLESS_DBNAME", "paperless"),
-        "USER": os.getenv("PAPERLESS_DBUSER"),
-    }
-    if os.getenv("PAPERLESS_DBPASS"):
-        DATABASES["default"]["PASSWORD"] = os.getenv("PAPERLESS_DBPASS")
-    if os.getenv("PAPERLESS_DBHOST"):
-        DATABASES["default"]["HOST"] = os.getenv("PAPERLESS_DBHOST")
-    if os.getenv("PAPERLESS_DBPORT"):
-        DATABASES["default"]["PORT"] = os.getenv("PAPERLESS_DBPORT")
+    # DB backend specific part
+    # support for MySQL as well
+    if 'mysql' in os.getenv('PAPERLESS_DBENGINE'):
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'OPTIONS': {
+                    # Tell MySQLdb to connect with 'utf8mb4' character set
+                    'charset': 'utf8mb4',
+                },
+                # Tell Django to build the test database with the 'utf8mb4' character set
+                'TEST': {
+                    'CHARSET': 'utf8mb4',
+                    'COLLATION': 'utf8mb4_unicode_ci',
+                }
+            }
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2'
+            }
+        }
+    
+    # common DB parameters
+    DATABASES['default']['NAME'] = os.getenv('PAPERLESS_DBNAME', 'paperless')
+    DATABASES['default']['USER'] = os.getenv('PAPERLESS_DBUSER')
+    DATABASES['default']['HOST'] = os.getenv('PAPERLESS_DBHOST')
+
+    # optional DB parameters
+    if os.getenv('PAPERLESS_DBPASS'):
+        DATABASES['default']['PASSWORD'] = os.getenv('PAPERLESS_DBPASS')
+    if os.getenv('PAPERLESS_DBPORT'):
+        DATABASES['default']['PORT'] = os.getenv('PAPERLESS_DBPORT')
 
 
 # Password validation
@@ -189,7 +226,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = os.getenv("PAPERLESS_LANGUAGE_CODE", "en-us")
 
 TIME_ZONE = os.getenv("PAPERLESS_TIME_ZONE", "UTC")
 
@@ -199,6 +236,14 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale/'),
+)
+
+LANGUAGES = (
+    ('en-us', _('English')),
+    ('de', _('German')),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
@@ -245,6 +290,12 @@ LOGGING = {
     },
 }
 
+# read the version information from file filled at build time
+try:
+    with open(os.path.join(BASE_DIR, "version.txt")) as v_file:
+        APP_VERSION_NUMBER = v_file.read()
+except:
+    APP_VERSION_NUMBER = "version.txt not readable"
 
 # The default language that tesseract will attempt to use when parsing
 # documents.  It should be a 3-letter language code consistent with ISO 639.
@@ -337,3 +388,7 @@ PAPERLESS_RECENT_CORRESPONDENT_YEARS = int(os.getenv(
 
 # Specify the filename format for out files
 PAPERLESS_FILENAME_FORMAT = os.getenv("PAPERLESS_FILENAME_FORMAT")
+
+# if True, the consumer moves the files in subdirs after processing
+# if False, the consumer just deletes the successfully processed file (default)
+CONSUMER_MOVES = __get_boolean("PAPERLESS_CONSUMER_MOVES")

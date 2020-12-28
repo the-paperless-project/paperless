@@ -8,9 +8,9 @@ sudo: false
 
 matrix:
     include:        
-        - python: "3.5"
         - python: "3.6"
         - python: "3.7-dev"
+        - python: "3.8"
         - env:
             - BUILD_DOCKER=1
             # Variable to add to publish the Docker image:

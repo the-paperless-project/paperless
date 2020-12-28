@@ -25,7 +25,7 @@
 {% endblock %}
 
 {% block content %}
-	<p>Please select the {{itemname}}.</p>
+	<p>{% blocktrans %}'Please select the {{itemname}}.'{% endblocktrans %}</p>
 	<form method="post">{% csrf_token %}
 		<div>
 			{% for obj in queryset %}

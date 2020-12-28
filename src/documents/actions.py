@@ -3,6 +3,7 @@ from django.contrib.admin import helpers
 from django.contrib.admin.utils import model_ngettext
 from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
 from documents.models import Correspondent, Tag
 
@@ -88,11 +89,11 @@ def add_tag_to_selected(modeladmin, request, queryset):
         modeladmin=modeladmin,
         request=request,
         queryset=queryset,
-        title="Add tag to multiple documents",
+        title=_("Add tag to multiple documents"),
         action="add_tag_to_selected",
         modelclass=Tag,
-        success_message="Successfully added tag %(selected_object)s to "
-                        "%(count)d %(items)s.",
+        success_message=_("Successfully added tag %(selected_object)s to "
+                          "%(count)d %(items)s."),
         document_action=lambda doc, tag: doc.tags.add(tag)
     )
 
@@ -102,11 +103,11 @@ def remove_tag_from_selected(modeladmin, request, queryset):
         modeladmin=modeladmin,
         request=request,
         queryset=queryset,
-        title="Remove tag from multiple documents",
+        title=_("Remove tag from multiple documents"),
         action="remove_tag_from_selected",
         modelclass=Tag,
-        success_message="Successfully removed tag %(selected_object)s from "
-                        "%(count)d %(items)s.",
+        success_message=_("Successfully removed tag %(selected_object)s from "
+                          "%(count)d %(items)s."),
         document_action=lambda doc, tag: doc.tags.remove(tag)
     )
 
@@ -117,11 +118,11 @@ def set_correspondent_on_selected(modeladmin, request, queryset):
         modeladmin=modeladmin,
         request=request,
         queryset=queryset,
-        title="Set correspondent on multiple documents",
+        title=_("Set correspondent on multiple documents"),
         action="set_correspondent_on_selected",
         modelclass=Correspondent,
-        success_message="Successfully set correspondent %(selected_object)s "
-                        "on %(count)d %(items)s.",
+        success_message=_("Successfully set correspondent %(selected_object)s "
+                          "on %(count)d %(items)s."),
         queryset_action=lambda qs, corr: qs.update(correspondent=corr)
     )
 
@@ -131,16 +132,17 @@ def remove_correspondent_from_selected(modeladmin, request, queryset):
         modeladmin=modeladmin,
         request=request,
         queryset=queryset,
-        success_message="Successfully removed correspondent from %(count)d "
-                        "%(items)s.",
+        title=_("Remove correspondent from multiple documents"),
+        success_message=_("Successfully removed correspondent from %(count)d "
+                          "%(items)s."),
         queryset_action=lambda qs: qs.update(correspondent=None)
     )
 
 
-add_tag_to_selected.short_description = "Add tag to selected documents"
+add_tag_to_selected.short_description = _("Add tag to selected documents")
 remove_tag_from_selected.short_description = \
-    "Remove tag from selected documents"
+    _("Remove tag from selected documents")
 set_correspondent_on_selected.short_description = \
-    "Set correspondent on selected documents"
+    _("Set correspondent on selected documents")
 remove_correspondent_from_selected.short_description = \
-    "Remove correspondent from selected documents"
+    _("Remove correspondent from selected documents")
