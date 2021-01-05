@@ -3,7 +3,7 @@ import factory
 from ..models import Document, Correspondent
 
 
-class CorrespondentFactory(factory.DjangoModelFactory):
+class CorrespondentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Correspondent
@@ -11,7 +11,7 @@ class CorrespondentFactory(factory.DjangoModelFactory):
     name = factory.Faker("name")
 
 
-class DocumentFactory(factory.DjangoModelFactory):
+class DocumentFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Document
