@@ -1,14 +1,89 @@
 import re
+import os
+import shutil
 
-from django.test import TestCase
-from unittest import mock
+from django.conf import settings
+from django.test import TestCase, override_settings
 from tempfile import TemporaryDirectory
+from unittest import mock
 
 from ..consumer import Consumer
 from ..models import FileInfo, Tag
 
 
 class TestConsumer(TestCase):
+    SAMPLE_FILES = os.path.join(os.path.dirname(__file__), "samples")
+
+    def setUp(self):
+        self.storage = TemporaryDirectory()
+        os.makedirs(os.path.join(self.storage.name, "documents", "originals"),
+                    exist_ok=True)
+        os.makedirs(os.path.join(self.storage.name, "documents", "thumbnails"),
+                    exist_ok=True)
+        self.storage_override = override_settings(MEDIA_ROOT=self.storage.name)
+        self.storage_override.enable()
+
+        self.tmpdir = TemporaryDirectory()
+        self.tmpdir_override = override_settings(
+                CONVERT_TMPDIR=self.tmpdir.name)
+        self.tmpdir_override.enable()
+
+        self.scratchdir = TemporaryDirectory()
+        self.scratchdir_override = override_settings(
+                SCRATCH_DIR=self.scratchdir.name)
+        self.scratchdir_override.enable()
+
+        self.consumptiondir = TemporaryDirectory()
+        self.consumptiondir_override = override_settings(
+                CONSUMPTION_DIR=self.consumptiondir.name)
+        self.consumptiondir_override.enable()
+
+    def tearDown(self):
+        self.storage.cleanup()
+        self.storage_override.disable()
+        self.tmpdir.cleanup()
+        self.tmpdir_override.disable()
+        self.scratchdir.cleanup()
+        self.scratchdir_override.disable()
+        self.consumptiondir.cleanup()
+        self.consumptiondir_override.disable()
+
+    @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/{title}")
+    def test_file_consumption(self):
+        myConsumer = Consumer(consume=settings.CONSUMPTION_DIR,
+                              scratch=settings.SCRATCH_DIR)
+
+        # Put sample document into consumption folder
+        shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                        os.path.join(settings.CONSUMPTION_DIR, "letter.pdf"))
+
+        myConsumer.consume_new_files()
+
+        # Check if consumed file has been stored correctly
+        self.assertEqual(os.path.isfile(os.path.join(
+            settings.MEDIA_ROOT, "documents", "originals", "none",
+            "letter-0000001.pdf.gpg")), True)
+
+    @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/dummy")
+    def test_duplicate_file_consumption(self):
+        myConsumer = Consumer(consume=settings.CONSUMPTION_DIR,
+                              scratch=settings.SCRATCH_DIR)
+
+        # Put sample document into consumption folder
+        shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                        os.path.join(settings.CONSUMPTION_DIR, "letter.pdf"))
+        shutil.copyfile(os.path.join(self.SAMPLE_FILES, "letter.pdf"),
+                        os.path.join(settings.CONSUMPTION_DIR, "letter2.pdf"))
+
+        myConsumer.consume_new_files()
+
+        # Check if consumed file has been stored correctly
+        self.assertEqual(os.path.isfile(os.path.join(
+            settings.MEDIA_ROOT, "documents", "originals", "none",
+            "dummy-0000001.pdf.gpg")), True)
+        self.assertEqual(os.path.isfile(os.path.join(
+            settings.MEDIA_ROOT, "documents", "originals", "none",
+            "dummy-0000002.pdf.gpg")), False)
 
     class DummyParser(object):
         pass

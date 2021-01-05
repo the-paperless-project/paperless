@@ -236,6 +236,10 @@ class Consumer:
             self.log("debug", "Tagging with {}".format(tag_names))
             document.tags.add(*relevant_tags)
 
+        # Create directory to store document in
+        document.create_source_directory()
+
+        # Safe document and thumbnail
         self._write(document, doc, document.source_path)
         self._write(document, thumbnail, document.thumbnail_path)
 

@@ -1,35 +1,30 @@
 import datetime
 import os
-import shutil
-from unittest import mock
-from uuid import uuid4
-from pathlib import Path
-from shutil import rmtree
 
 from dateutil import tz
-from django.test import TestCase, override_settings
-
-from django.utils.text import slugify
-from ..models import Tag, Document, Correspondent
 from django.conf import settings
+from django.test import TestCase, override_settings
+from django.utils.text import slugify
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest import mock
+
+from ..models import Tag, Document, Correspondent
 
 
 class TestDate(TestCase):
-    deletion_list = []
-
-    def add_to_deletion_list(self, dirname):
-        self.deletion_list.append(dirname)
-
     def setUp(self):
-        folder = "/tmp/paperless-tests-{}".format(str(uuid4())[:8])
-        os.makedirs(folder + "/documents/originals")
-        storage_override = override_settings(MEDIA_ROOT=folder)
-        storage_override.enable()
-        self.add_to_deletion_list(folder)
+        self.storage = TemporaryDirectory()
+        os.makedirs(os.path.join(self.storage.name, "documents", "originals"),
+                    exist_ok=True)
+        os.makedirs(os.path.join(self.storage.name, "documents", "thumbnails"),
+                    exist_ok=True)
+        self.storage_override = override_settings(MEDIA_ROOT=self.storage.name)
+        self.storage_override.enable()
 
     def tearDown(self):
-        for dirname in self.deletion_list:
-            shutil.rmtree(dirname, ignore_errors=True)
+        self.storage.cleanup()
+        self.storage_override.disable()
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="")
     def test_source_filename(self):
@@ -65,7 +60,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -77,7 +71,6 @@ class TestDate(TestCase):
 
         # Enable encryption and check again
         document.storage_type = Document.STORAGE_TYPE_GPG
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf.gpg")
         document.save()
@@ -109,7 +102,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -144,7 +136,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -176,7 +167,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -212,7 +202,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "demo-0000001.pdf")
         document.create_source_directory()
@@ -233,7 +222,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "demo-0000001.pdf")
         document.create_source_directory()
@@ -254,7 +242,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -274,7 +261,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "demo-0000001.pdf")
         document.create_source_directory()
@@ -290,7 +276,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -306,7 +291,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -322,7 +306,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none-0000001.pdf")
         document.create_source_directory()
@@ -339,7 +322,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none/none-0000001.pdf")
         document.create_source_directory()
@@ -379,7 +361,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
@@ -426,7 +407,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf.gpg")
         document.create_source_directory()
@@ -466,40 +446,42 @@ class TestDate(TestCase):
 
     def test_delete_all_empty_subdirectories(self):
         # Create our working directory
-        tmp = "/tmp/paperless-tests-{}".format(str(uuid4())[:8])
-        os.makedirs(tmp)
-        self.add_to_deletion_list(tmp)
+        tmp = TemporaryDirectory()
 
-        os.makedirs(os.path.join(tmp, "empty"))
-        os.makedirs(os.path.join(tmp, "empty", "subdirectory"))
+        os.makedirs(os.path.join(tmp.name, "empty"))
+        os.makedirs(os.path.join(tmp.name, "empty", "subdirectory"))
 
-        os.makedirs(os.path.join(tmp, "notempty"))
-        Path(os.path.join(tmp, "notempty", "file")).touch()
+        os.makedirs(os.path.join(tmp.name, "notempty"))
+        Path(os.path.join(tmp.name, "notempty", "file")).touch()
 
-        Document.delete_all_empty_subdirectories(tmp)
+        Document.delete_all_empty_subdirectories(tmp.name)
 
-        self.assertEqual(os.path.isdir(os.path.join(tmp, "notempty")), True)
-        self.assertEqual(os.path.isdir(os.path.join(tmp, "empty")), False)
+        self.assertEqual(os.path.isdir(
+            os.path.join(tmp.name, "notempty")), True)
+        self.assertEqual(os.path.isdir(os.path.join(tmp.name, "empty")), False)
         self.assertEqual(os.path.isfile(
-            os.path.join(tmp, "notempty", "file")), True)
+            os.path.join(tmp.name, "notempty", "file")), True)
+
+        tmp.cleanup()
 
     def test_try_delete_empty_directories(self):
         # Create our working directory
-        tmp = "/tmp/paperless-tests-{}".format(str(uuid4())[:8])
-        os.makedirs(tmp)
-        self.add_to_deletion_list(tmp)
+        tmp = TemporaryDirectory()
 
-        os.makedirs(os.path.join(tmp, "notempty"))
-        Path(os.path.join(tmp, "notempty", "file")).touch()
-        os.makedirs(os.path.join(tmp, "notempty", "empty"))
+        os.makedirs(os.path.join(tmp.name, "notempty"))
+        Path(os.path.join(tmp.name, "notempty", "file")).touch()
+        os.makedirs(os.path.join(tmp.name, "notempty", "empty"))
 
         Document.try_delete_empty_directories(
-                os.path.join(tmp, "notempty", "empty"))
-        self.assertEqual(os.path.isdir(os.path.join(tmp, "notempty")), True)
-        self.assertEqual(os.path.isfile(
-            os.path.join(tmp, "notempty", "file")), True)
+                os.path.join(tmp.name, "notempty", "empty"))
         self.assertEqual(os.path.isdir(
-            os.path.join(tmp, "notempty", "empty")), False)
+                os.path.join(tmp.name, "notempty")), True)
+        self.assertEqual(os.path.isfile(
+            os.path.join(tmp.name, "notempty", "file")), True)
+        self.assertEqual(os.path.isdir(
+            os.path.join(tmp.name, "notempty", "empty")), False)
+
+        tmp.cleanup()
 
     @override_settings(PAPERLESS_FILENAME_FORMAT="{correspondent}/" +
                        "{correspondent}")
@@ -510,7 +492,6 @@ class TestDate(TestCase):
         document.save()
 
         # Ensure that filename is properly generated
-        tmp = document.source_filename
         self.assertEqual(document.generate_source_filename(),
                          "none/none-0000001.pdf")
         document.create_source_directory()
