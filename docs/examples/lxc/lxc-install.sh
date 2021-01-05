@@ -107,7 +107,7 @@ fi
 su -c "cd /home/paperless ; git clone https://github.com/the-paperless-project/paperless" paperless
 
 # Install Pip Requirements
-apt-get -y install python3-pip python3-venv
+apt-get -y install python3-pip python3-venv libpq-dev
 cd /home/paperless/paperless
 pip3 install -r requirements.txt
 
