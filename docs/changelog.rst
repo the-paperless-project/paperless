@@ -1,12 +1,55 @@
 Changelog
 #########
 
+unreleased
+==========
+
+* Paperless has a new home! The GitHub repository has moved from `Daniel
+  Quinn`_'s personal namespace into the ``the-paperless-project`` organization
+  `on GitHub <https://github.com/the-paperless-project>`_. See issue `#470`_ for
+  further information.
+* `stgarf`_ wrote documentation on how to enable and disable GPG encryption
+  `#510`_.
+* `Jens Pfeifle`_ added document parsing using Ghostscript which is used as a
+  fallback if ImageMagick's ``convert`` fails `#494`_.
+* `Florian Gabsteiger`_ introduced `Whitenoise
+  <http://whitenoise.evans.io/en/stable/index.html>`_, a middleware for Django
+  tailor-made for serving static files quickly. They also introduced Brotli
+  compression which further improved performance `#552`_.
+* `Brendan M. Sleight`_ with the help of `Piotr Cichosz`_ provided extensive
+  documentation on how to setup Paperless in LXC, including a fully-featured
+  script to automate the installation `#543`_
+* `grembo`_ introduced a new feature that allows the filenames to be
+  transformed before the files are parsed `#542`_. This allows for more
+  intricate workflows where filename matching is used to tag documents.
+* `Florian Gabsteiger`_ updated the Docker-image to use `Gunicorn
+  <https://gunicorn.org/>`_ as its webserver instead of the development-server
+  included in Django, which is expected to further increase performance
+  `#564`_.
+* `Fabian Winter`_ submitted a change to allow the Docker installation to be
+  served via HTTPS when a certificate is provided `#579`_.
+* `Johann Bauer`_ introduced the PDF-preview to the edit form `#597`_, which
+  means you'll now see a scrollable preview of the document you are currently
+  editing.
+* `BastianPoe`_ implemented a feature that allows stored documents to get a
+  structured and configurable filename `#593`_.
+* Noteworthy dependency updates:
+
+  * Alpine, 3.8 |rarr| 3.11 *(Docker)* `#563`_ + `#612`_
+  * Django, 2.0.10 |rarr| 2.0.13 `#612`_
+  * django-cors-headers, 2.4.0 |rarr| 3.2.1 `#612`_
+  * Gunicorn, 19.9.0 |rarr| 20.0.4 `#612`_
+  * Pillow, 5.4.1 |rarr| 7.0.0 `#612`_
+  * pytest, 4.1.1 |rarr| 5.3.5 `#612`_
+  * sphinx, 1.8.3 |rarr| 2.4.1 `#612`_
+  * whitenoise, 4.1.3 |rarr| 5.0.1 `#612`_
+
 2.7.0
 =====
 
 * `syntonym`_ submitted a pull request to catch IMAP connection errors `#475`_.
 * `Stéphane Brunner`_ added ``psycopg2`` to the Pipfile `#489`_.  He also fixed
-  a syntax error in ``docker-compose.yml.example`` `#488`_ and added [DjangoQL](https://github.com/ivelum/djangoql),
+  a syntax error in ``docker-compose.yml.example`` `#488`_ and added `DjangoQL <https://github.com/ivelum/djangoql>`_,
   which allows a litany of handy search functionality `#492`_.
 * `CkuT`_ and `JOKer`_ hacked out a simple, but super-helpful optimisation to
   how the thumbnails are served up, improving performance considerably `#481`_.
@@ -630,6 +673,14 @@ bulk of the work on this big change.
 .. _JOKer: https://github.com/MasterofJOKers
 .. _Brian Cribbs: https://github.com/cribbstechnolog
 .. _Brendan M. Sleight: https://github.com/bmsleight
+.. _Daniel Quinn: https://github.com/danielquinn
+.. _stgarf: https://github.com/stgarf
+.. _Jens Pfeifle: https://github.com/JensPfeifle
+.. _Florian Gabsteiger: https://github.com/diveflo
+.. _Piotr Cichosz: https://github.com/maur
+.. _grembo: https://github.com/grembo
+.. _Fabian Winter: https://github.com/fdw
+.. _Johann Bauer: https://github.com/bauerj
 
 .. _#20: https://github.com/the-paperless-project/paperless/issues/20
 .. _#44: https://github.com/the-paperless-project/paperless/issues/44
@@ -730,6 +781,7 @@ bulk of the work on this big change.
 .. _#441: https://github.com/the-paperless-project/paperless/pull/441
 .. _#442: https://github.com/the-paperless-project/paperless/pull/442
 .. _#466: https://github.com/the-paperless-project/paperless/pull/466
+.. _#470: https://github.com/the-paperless-project/paperless/issues/470
 .. _#471: https://github.com/the-paperless-project/paperless/pull/471
 .. _#475: https://github.com/the-paperless-project/paperless/pull/475
 .. _#481: https://github.com/the-paperless-project/paperless/pull/481
@@ -738,7 +790,20 @@ bulk of the work on this big change.
 .. _#488: https://github.com/the-paperless-project/paperless/pull/488
 .. _#489: https://github.com/the-paperless-project/paperless/pull/489
 .. _#492: https://github.com/the-paperless-project/paperless/pull/492
+.. _#494: https://github.com/the-paperless-project/paperless/pull/494
+.. _#510: https://github.com/the-paperless-project/paperless/pull/510
+.. _#542: https://github.com/the-paperless-project/paperless/pull/542
+.. _#543: https://github.com/the-paperless-project/paperless/pull/543
+.. _#552: https://github.com/the-paperless-project/paperless/pull/552
+.. _#563: https://github.com/the-paperless-project/paperless/pull/563
+.. _#564: https://github.com/the-paperless-project/paperless/pull/564
+.. _#579: https://github.com/the-paperless-project/paperless/pull/579
+.. _#593: https://github.com/the-paperless-project/paperless/pull/593
+.. _#597: https://github.com/the-paperless-project/paperless/pull/597
+.. _#612: https://github.com/the-paperless-project/paperless/pull/612
 
 .. _pipenv: https://docs.pipenv.org/
 .. _a new home on Docker Hub: https://hub.docker.com/r/danielquinn/paperless/
 .. _optipng: http://optipng.sourceforge.net/
+
+.. include:: <isonum.txt>
