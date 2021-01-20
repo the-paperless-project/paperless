@@ -226,7 +226,7 @@ This is the similar command to run after adding or changing a correspondent.
 
 .. _utilities-encyption:
 
-Enabling Encrpytion
+Enabling Encryption
 -------------------
 
 Let's say you've imported a few documents to play around with paperless and now
