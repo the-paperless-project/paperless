@@ -130,7 +130,7 @@ class Message(Loggable):
 class Attachment(object):
 
     SAFE_SUFFIX_REGEX = re.compile(
-        r"^(application/(pdf))|(image/(png|jpeg|gif|tiff))$")
+        r"^(application/(?:x-)?(pdf))|(image/(png|jpeg|gif|tiff))$")
 
     def __init__(self, data, content_type):
 
