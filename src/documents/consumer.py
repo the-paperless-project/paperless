@@ -128,9 +128,8 @@ class Consumer:
                 ignored_files.append(file)
                 if self.move:
                     self.logger.info(
-                        "Moving {} to {}: file is ignored.",
-                        format(entry.path),
-                        format(self.ignored))
+                        "Moving {} to {}: file is ignored.".
+                        format(entry.path, self.ignored))
                     self._safe_move(entry.path, self.ignored)
             elif file in self._files:
                 # this means no changes in name, mtime and size from last check
@@ -184,9 +183,8 @@ class Consumer:
 
             if self.move:
                 self.logger.info(
-                    "Moving {} to {}: file is duplicate.",
-                    format(doc),
-                    format(self.duplicate))
+                    "Moving {} to {}: file is duplicate.".
+                    format(doc, self.duplicate))
                 self._safe_move(doc, self.duplicate)
 
             return False
