@@ -38,6 +38,9 @@ RUN apk add --no-cache \
       zlib-dev \
       libxslt-dev \
       libxml2-dev \
+      lcms2-dev \
+      tiff-dev \
+      freetype-dev \
       qpdf-dev
 
 # Install python dependencies
