@@ -2,6 +2,24 @@
 
 ![Paperless](https://raw.githubusercontent.com/the-paperless-project/paperless/master/src/paperless/static/paperless/img/logo-dark.png)
 
+> ## Important news about the future of this project
+> 
+> It's been more than 5 years since I started this project on a whim as an effort to try to get a handle on the massive amount of paper I was dealing with in relation to various visa applications (expat life is complicated!)  Since then, the project has *exploded* in popularity, so much so that it overwhelmed me and working on it stopped being "fun" and started becoming a serious source of stress.
+> 
+> In an effort to fix this, I created the Paperless GitHub [organisation](https://github.com/the-paperless-project), and brought on a few people to manage the issue and pull request load.  Unfortunately, that model has proven to be unworkable too.  With 23 pull requests waiting and 157 issues slowly filling up with confused/annoyed people wanting to get their contributions in, my whole "appoint a few strangers and hope they've got time" idea is showing my lack of foresight and organisational skill.
+> 
+> In the shadow of these difficulties, a fork called [Paperless-ng](https://github.com/jonaswinkler/paperless-ng) written by [Jonas Winkler](https://github.com/jonaswinkler) has cropped up.  It's *really* good, and unlike this project, it's actively maintained (at the time of this writing anyway).  With 564 forks currently tracked by GitHub, I suspect there are a few more forks worth looking into out there as well.
+> 
+> So, with all of the above in mind, I've decided to archive this project as read-only and suggest that those interested in new updates or submitting patches have a look at Paperless-ng.  If you really like "Old Paperless", that's ok too!  The project is [GPL licensed](https://github.com/the-paperless-project/paperless/blob/master/LICENSE), so you can fork it and run it on whatever you like so long as you respect the terms of said license.
+>
+> In time, I may transfer ownership of this organisation to Jonas if he's interested in taking that on, but for the moment, he's happy to run Paperless-ng out of its [current repo](https://github.com/jonaswinkler/paperless-ng).  Regardless, if we do decide to make the transfer, I'll post a notification here a few months in advance so that people won't be surprised by new code at this location.
+> 
+> For my part, I'm really happy & proud to have been part of this project, and I'm sorry I've been unable to commit more time to it for everyone.  I hope you all understand, and I'm really pleased that this work has been able to continue to live and be useful in a new project.  Thank you to everyone who contributed, and for making Free software awesome.
+> 
+> Sincerely,
+> [Daniel Quinn](https://github.com/danielquinn)
+
+
 [![Documentation](https://readthedocs.org/projects/paperless/badge/?version=latest)](https://paperless.readthedocs.org/)
 [![Chat](https://badges.gitter.im/the-paperless-project/paperless.svg)](https://gitter.im/danielquinn/paperless)
 [![Travis](https://travis-ci.org/the-paperless-project/paperless.svg?branch=master)](https://travis-ci.org/the-paperless-project/paperless)
