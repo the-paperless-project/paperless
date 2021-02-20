@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "<2.1,>=2.0"
+django = ">=2.0,<2.3"
 pillow = "*"
 coveralls = "*"
 dateparser = "*"
