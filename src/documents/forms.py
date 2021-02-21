@@ -7,7 +7,7 @@ from time import mktime
 from django import forms
 from django.conf import settings
 
-from .models import Document, Correspondent
+from .models import Document, Correspondent, Scan
 
 
 class UploadForm(forms.Form):
@@ -78,7 +78,7 @@ class UploadForm(forms.Form):
 
         return document
 
-    def save(self):
+    def save(self, user):
         """
         Since the consumer already does a lot of work, it's easier just to save
         to-be-consumed files to the consumption directory rather than have the
@@ -98,3 +98,10 @@ class UploadForm(forms.Form):
         with open(file_name, "wb") as f:
             f.write(document)
             os.utime(file_name, times=(t, t))
+
+        Scan.objects.create(
+            correspondent=correspondent,
+            title=title,
+            file_name=file_name,
+            user=user
+        )

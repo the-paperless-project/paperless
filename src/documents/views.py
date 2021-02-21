@@ -93,7 +93,7 @@ class PushView(SessionOrBasicAuthMixin, FormView):
     form_class = UploadForm
 
     def form_valid(self, form):
-        form.save()
+        form.save(self.request.user)
         return HttpResponse("1", status=202)
 
     def form_invalid(self, form):
