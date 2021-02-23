@@ -196,6 +196,8 @@ class DocumentAdmin(DjangoQLSearchMixin, CommonAdmin):
 
     date_hierarchy = "created"
 
+    djangoql_completion_enabled_by_default = False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.document_queue = []
