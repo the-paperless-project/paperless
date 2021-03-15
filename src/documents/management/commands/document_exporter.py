@@ -87,8 +87,8 @@ class Command(Renderable, BaseCommand):
 
             else:
 
-                shutil.copy(document.source_path, file_target)
-                shutil.copy(document.thumbnail_path, thumbnail_target)
+                shutil.copy2(document.source_path, file_target)
+                shutil.copy2(document.thumbnail_path, thumbnail_target)
 
         manifest += json.loads(
             serializers.serialize("json", Correspondent.objects.all()))
