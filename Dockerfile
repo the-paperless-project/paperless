@@ -60,7 +60,7 @@ RUN mkdir -p $PAPERLESS_CONSUMPTION_DIR && \
   adduser --home /usr/src/paperless --disabled-password --gecos "" --uid 1000 --ingroup paperless paperless
 
 RUN echo 'Defaults env_keep += "VIRTUAL_ENV"' >>/etc/sudoers.d/paperless && \
-  echo 'Defaults secure_path=/usr/src/paperless/bin:/usr/sbin:/usr/bin:/sbin:/bin' >> /etc/sudoers.d/paperless
+  echo 'Defaults secure_path=/usr/src/paperless/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin' >> /etc/sudoers.d/paperless
 
 COPY --from=builder /usr/src/paperless/ /usr/src/paperless
 RUN chown -Rh paperless:paperless /usr/src/paperless
