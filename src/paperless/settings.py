@@ -114,6 +114,7 @@ MIDDLEWARE = [
 
 SILENCED_SYSTEM_CHECKS = [
     'admin.E408',
+    'fields.W162',
 ]
 
 # Enable whitenoise compression and caching
