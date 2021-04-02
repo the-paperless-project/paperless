@@ -40,8 +40,7 @@ psycopg2 = "*"
 djangoql = "*"
 whitenoise = "*"
 brotli = "*"
-ocrmypdf = "*"
-pikepdf = "<1.17"
+pikepdf = ">=1.19"
 mysqlclient = "*"
 
 [dev-packages]

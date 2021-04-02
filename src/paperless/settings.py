@@ -330,6 +330,9 @@ OPTIPNG_BINARY = os.getenv("PAPERLESS_OPTIPNG_BINARY", "optipng")
 # Unpaper
 UNPAPER_BINARY = os.getenv("PAPERLESS_UNPAPER_BINARY", "unpaper")
 
+# Ocrmypdf
+OCRMYPDF_BINARY = os.getenv("PAPERLESS_OCRMYPDF_BINARY", "ocrmypdf")
+
 # This will be created if it doesn't exist
 SCRATCH_DIR = os.getenv("PAPERLESS_SCRATCH_DIR", "/tmp/paperless")
 

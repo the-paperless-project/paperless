@@ -112,7 +112,7 @@ if [[ "$1" != "/"* ]]; then
             fi
         fi
         cd /usr/src/paperless/src/ && \
-            exec sudo -HEu paperless /usr/bin/gunicorn -c /usr/src/paperless/gunicorn.conf.py ${EXTRA_PARAMS} "$@" paperless.wsgi
+            exec sudo -HEu paperless gunicorn -c /usr/src/paperless/gunicorn.conf.py ${EXTRA_PARAMS} "$@" paperless.wsgi
     else
         exec sudo -HEu paperless "/usr/src/paperless/src/manage.py" "$@"
     fi

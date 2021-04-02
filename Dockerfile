@@ -1,74 +1,69 @@
-FROM alpine:3.11
+FROM ubuntu:20.04 as builder
 
-LABEL maintainer="The Paperless Project https://github.com/the-paperless-project/paperless" \
-      contributors="Guy Addadi <addadi@gmail.com>, Pit Kleyersburg <pitkley@googlemail.com>, \
-        Sven Fischer <git-dev@linux4tw.de>"
-RUN apk add --no-cache \
-      bash \
-      curl \
-      ghostscript \
-      gnupg \
-      imagemagick \
-      libmagic \
-      libpq \
-      optipng \
-      poppler \
-      python3 \
-      shadow \
-      sudo \
-      tesseract-ocr \
-      tzdata \
-      tesseract-ocr-data-deu \
-      unpaper \
-      libxslt \
-      qpdf \
-      libxml2 \
-      gettext \
-      mariadb-client \
-      mariadb-connector-c && \
-    apk add --no-cache --virtual .build-dependencies \
-      g++ \
-      gcc \
-      jpeg-dev \
-      musl-dev \
-      poppler-dev \
-      postgresql-dev \
-      mariadb-dev \
-      python3-dev \
-      zlib-dev \
-      libxslt-dev \
-      libxml2-dev \
-      lcms2-dev \
-      qpdf-dev
+ENV LANG=C.UTF-8
 
-# Install python dependencies
-RUN python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --no-cache --upgrade pip pipenv setuptools wheel && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  build-essential autoconf automake libtool \
+  python3 \
+  python3-venv \
+  python3-setuptools \
+  python3-wheel \
+  pipenv \
+  python3-pip
+
+# Get build deps
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  libpython3.8-dev \
+  libpq-dev \
+  libmariadb-dev \
+  libpoppler-cpp-dev \
+  libxslt-dev \
+  libxml2-dev
+
+# get dependencies
+WORKDIR /usr/src/paperless
+COPY Pipfile* .
+RUN pipenv lock --keep-outdated --requirements > requirements.txt
+
+ENV VIRTUAL_ENV=/usr/src/paperless
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN pip3 install -r requirements.txt
+
+FROM jbarlow83/ocrmypdf
+
+ENV LANG=C.UTF-8
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  python3.8 \
+  python3-venv \
+  gnupg \
+  imagemagick \
+  optipng \
+  libpoppler-cpp0v5 \
+  sudo \
+  gettext \
+  mariadb-client \
+  libmariadb3 \
+  libmagic1 \
+  curl && \
+  rm -rf /var/lib/apt/lists/*
 
 # Set export and consumption directories
-ENV PAPERLESS_EXPORT_DIR=/export \
-    PAPERLESS_CONSUMPTION_DIR=/consume
+ENV PAPERLESS_EXPORT_DIR=/export
+ENV PAPERLESS_CONSUMPTION_DIR=/consume
 
-# Copy Pipfiles file
-COPY Pipfile* /usr/src/paperless/
-
-RUN cd /usr/src/paperless && \
-    pipenv install --deploy --system && \
-# Remove build dependencies
-    apk del .build-dependencies
-
-# Create the consumption directory
+# Create the directories and user
 RUN mkdir -p $PAPERLESS_CONSUMPTION_DIR && \
-# Create user
-    addgroup -g 1000 paperless && \
-    adduser -D -u 1000 -G paperless -h /usr/src/paperless paperless && \
-    chown -Rh paperless:paperless /usr/src/paperless && \
-    mkdir -p $PAPERLESS_EXPORT_DIR && \
-# Avoid setrlimit warnings
-# See: https://gitlab.alpinelinux.org/alpine/aports/issues/11122
-    echo 'Set disable_coredump false' >> /etc/sudo.conf
+  mkdir -p $PAPERLESS_EXPORT_DIR && \
+  addgroup --gid 1000 paperless && \
+  adduser --home /usr/src/paperless --disabled-password --gecos "" --uid 1000 --ingroup paperless paperless
+
+RUN echo 'Defaults env_keep += "VIRTUAL_ENV"' >>/etc/sudoers.d/paperless && \
+  echo 'Defaults secure_path=/usr/src/paperless/bin:/usr/sbin:/usr/bin:/sbin:/bin' >> /etc/sudoers.d/paperless
+
+COPY --from=builder /usr/src/paperless/ /usr/src/paperless
+RUN chown -Rh paperless:paperless /usr/src/paperless
 
 # Setup entrypoint
 COPY scripts/docker-entrypoint.sh /sbin/docker-entrypoint.sh
@@ -80,6 +75,7 @@ COPY scripts/gunicorn.conf.py /usr/src/paperless/
 WORKDIR /usr/src/paperless/src
 # Mount volumes and set Entrypoint
 VOLUME ["/usr/src/paperless/data", "/usr/src/paperless/media", "/consume", "/export"]
+
 ENTRYPOINT ["/sbin/docker-entrypoint.sh"]
 CMD ["--help"]
 
@@ -88,8 +84,13 @@ COPY src/ /usr/src/paperless/src/
 COPY data/ /usr/src/paperless/data/
 COPY media/ /usr/src/paperless/media/
 
-RUN cd /usr/src/paperless && \
-    pipenv run django-admin compilemessages
+# setup venv
+ENV VIRTUAL_ENV=/usr/src/paperless
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN cd /usr/src/paperless/src && \
+  django-admin compilemessages
 
 # Collect static files
 RUN sudo -HEu paperless /usr/src/paperless/src/manage.py collectstatic --clear --no-input

@@ -3,8 +3,6 @@ import re
 import subprocess
 
 from django.conf import settings
-from PIL import Image
-import ocrmypdf
 
 import pdftotext
 from documents.parsers import DocumentParser, ParseError
@@ -26,6 +24,7 @@ class PdfDocumentParser(DocumentParser):
     THREADS = int(settings.OCR_THREADS) if settings.OCR_THREADS else 1
     DEFAULT_OCR_LANGUAGE = settings.OCR_LANGUAGE
     OCR_ALWAYS = settings.OCR_ALWAYS
+    OCRMYPDF = settings.OCRMYPDF_BINARY
 
     def __init__(self, path):
         super().__init__(path)
@@ -121,32 +120,30 @@ class PdfDocumentParser(DocumentParser):
         out_path = os.path.join(self.tempdir,
                                 os.path.basename(self.document_path))
 
+        cmd = [self.OCRMYPDF,
+               self.document_path,
+               out_path,
+               "--language", self.DEFAULT_OCR_LANGUAGE,
+               "--output-type", "pdf",
+               "--image-dpi", "{}".format(self.DENSITY),
+               "--rotate-pages",
+               "--rotate-pages-threshold", "8",
+               "--redo-ocr",
+               "--optimize", "0",
+               "--skip-big", "35",
+               "--jobs", "{}".format(self.THREADS)]
+
         if (settings.DEBUG):
-            ocrmypdf.configure_logging(ocrmypdf.Verbosity.debug)
+            cmd.extend(["--verbose", "1"])
 
-        try:
-            rc = ocrmypdf.ocr(self.document_path,
-                              out_path,
-                              language=self.DEFAULT_OCR_LANGUAGE,
-                              output_type="pdf",
-                              progress_bar=False,
-                              image_dpi=self.DENSITY,
-                              rotate_pages=True,
-                              rotate_pages_threshold=8,
-                              redo_ocr=True,
-                              optimize=0,
-                              skip_big=35,
-                              jobs=self.THREADS)
-            self.archive_path = out_path
-        except Exception as e:
-            raise ParseError("Ocrmypdf failed with {} for {}".format(
-                e,
-                self.document_path))
+        rc = subprocess.Popen(cmd).wait()
 
-        if (ocrmypdf.ExitCode.ok != rc):
+        if rc != 0:
             self.log("warning", "Ocrmypdf exit was {} for {}".format(
                 rc,
                 self.document_path))
+
+        self.archive_path = out_path
 
     def _extract_pdf(self, path):
 
