@@ -1,8 +1,11 @@
 FROM ubuntu:20.04 as builder
 
 ENV LANG=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y --no-install-recommends \
   build-essential autoconf automake libtool \
   python3 \
   python3-venv \
@@ -12,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3-pip
 
 # Get build deps
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
   libpython3.8-dev \
   libpq-dev \
   libmariadb-dev \
@@ -33,8 +36,11 @@ RUN pip3 install -r requirements.txt
 FROM jbarlow83/ocrmypdf
 
 ENV LANG=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y --no-install-recommends \
   python3.8 \
   python3-venv \
   gnupg \
@@ -47,6 +53,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libmariadb3 \
   libmagic1 \
   curl && \
+  apt-get clean -y && \
   rm -rf /var/lib/apt/lists/*
 
 # Set export and consumption directories
@@ -62,8 +69,7 @@ RUN mkdir -p $PAPERLESS_CONSUMPTION_DIR && \
 RUN echo 'Defaults env_keep += "VIRTUAL_ENV"' >>/etc/sudoers.d/paperless && \
   echo 'Defaults secure_path=/usr/src/paperless/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin' >> /etc/sudoers.d/paperless
 
-COPY --from=builder /usr/src/paperless/ /usr/src/paperless
-RUN chown -Rh paperless:paperless /usr/src/paperless
+COPY --chown=paperless:paperless --from=builder /usr/src/paperless/ /usr/src/paperless
 
 # Setup entrypoint
 COPY scripts/docker-entrypoint.sh /sbin/docker-entrypoint.sh
